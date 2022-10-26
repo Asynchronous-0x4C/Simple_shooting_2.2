@@ -1,0 +1,37 @@
+{
+  "HighQuality": true,
+  "Language": "ja_jp",
+  "Weapons": [
+    "G_Shot",
+    "Grenade",
+    "Turret",
+    "Mirror",
+    "PlasmaField",
+    "Laser",
+    "Lightning",
+    "Reflector",
+    "Absorption",
+    "Fire",
+    "Ice",
+    "Satellite",
+    "projectile",
+    "scale",
+    "power",
+    "speed",
+    "duration",
+    "cooltime"
+  ],
+  "vsync": true,
+  "FPS": true,
+  "clear": true,
+  "Stage": [
+    "Tutorial",
+    "Stage1",
+    "Stage2",
+    "Stage3",
+    "Stage4",
+    "Stage5"
+  ],
+  "Fullscreen": false,
+  "GPGPU": false
+}
