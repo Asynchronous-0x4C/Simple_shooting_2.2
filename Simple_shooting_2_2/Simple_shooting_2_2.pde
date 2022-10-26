@@ -1403,17 +1403,10 @@ class Entity implements Egent, Cloneable {
     HeapEntityDataX.get(threadNum).add(new AABBData(max,"e",this));
   }
   
-  public void Collision(Entity e){}
-  
-  public void ExplosionCollision(Explosion e){}
-  
-  public void EnemyCollision(Enemy e){}
-  
-  public void BulletCollision(Bullet b){}
-  
-  public void MyselfCollision(Myself e){}  
-  
-  public void WallCollision(WallEntity w){}  
+  public void Collision(Entity e){
+    if(!isHit(this.r_body.m_type,e.r_body.m_type))return;
+    
+  }
   
   public void ExplosionHit(Explosion e,boolean p){}
   
@@ -1437,12 +1430,18 @@ class Entity implements Egent, Cloneable {
 class RigidBody{
   SolidType s_type;
   MaterialType m_type;
-  PVector pos,vel;
+  PVector pos,dist;
   float radius;
+  float rotate;
   boolean substance=false;
   
-  RigidBody(){
-    
+  RigidBody(SolidType s_t,MaterialType m_t,PVector pos,PVector dist,float ra,float ro){
+    this.s_type=s_t;
+    this.m_type=m_t;
+    this.pos=pos;
+    this.dist=dist;
+    this.radius=ra;
+    this.rotate=ro;
   }
 }
 

@@ -1,7 +1,7 @@
-# Simple_Shooting_2.1
+# Simple_Shooting_2.2
 シンプルな2Dのシューティングゲームです
 ## 目次
-- [Simple_Shooting_2.1](#simple_shooting_21)
+- [Simple_Shooting_2.2](#simple_shooting_22)
   - [目次](#目次)
   - [概要](#概要)
   - [環境](#環境)
