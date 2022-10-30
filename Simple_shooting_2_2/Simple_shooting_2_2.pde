@@ -1408,6 +1408,16 @@ class Entity implements Egent, Cloneable {
     
   }
   
+  public void ExplosionCollision(Explosion e){}
+  
+  public void EnemyCollision(Enemy e){}
+  
+  public void BulletCollision(Bullet b){}
+  
+  public void MyselfCollision(Myself e){}  
+  
+  public void WallCollision(WallEntity w){}
+  
   public void ExplosionHit(Explosion e,boolean p){}
   
   public void EnemyHit(Enemy e,boolean p){}

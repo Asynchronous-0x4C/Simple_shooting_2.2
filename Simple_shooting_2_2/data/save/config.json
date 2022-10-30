@@ -32,6 +32,6 @@
     "Stage4",
     "Stage5"
   ],
-  "Fullscreen": false,
+  "Fullscreen": true,
   "GPGPU": false
 }

@@ -327,7 +327,7 @@ class EnergyBullet extends Weapon{
   
   EnergyBullet(Entity e){
     super(e);
-    setPower(1);
+    setPower(1.2f);
     setSpeed(15);
     setDuration(40);
     setDiffuse(0f);
@@ -341,13 +341,13 @@ class PulseBullet extends Weapon{
   PulseBullet(Entity e){
     super(e);
     setSpeed(20);
-    setPower(1.3f);
+    setPower(0.8f);
     setDuration(40);
     setAutoShot(true);
     setColor(new Color(0,255,255));
     setHeatUP(0.45f);
     setDiffuse(0f);
-    setCoolTime(15);
+    setCoolTime(10);
   }
 }
 

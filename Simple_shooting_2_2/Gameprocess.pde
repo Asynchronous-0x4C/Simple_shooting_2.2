@@ -71,7 +71,7 @@ class GameProcess{
                      player.subWeapons.add(masterTable.get("Reflector").getWeapon());
                      break;
        case "Stage3":player.subWeapons.add(masterTable.get("Turret").getWeapon());
-                     player.subWeapons.add(masterTable.get("Satellite").getWeapon());
+                     player.subWeapons.add(masterTable.get("Absorption").getWeapon());
                      break;
        case "Stage4":player.subWeapons.add(masterTable.get("G_Shot").getWeapon());
                      player.subWeapons.add(masterTable.get("Grenade").getWeapon());
@@ -590,7 +590,7 @@ class GameProcess{
       }else{
         player.Level=targetLevel;
       }
-      player.nextLevel=10+(player.Level-1)*10*ceil(player.Level/10f);
+      player.nextLevel=10+(player.Level-1)*5*ceil(player.Level/10f);
     }else{
       Item i=masterTable.get(tokens.get(1).getText().replace("\"",""));
       SubWeapon w=i.getWeapon();

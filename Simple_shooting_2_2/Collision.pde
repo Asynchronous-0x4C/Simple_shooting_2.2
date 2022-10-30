@@ -7,7 +7,7 @@ RigidBodyCollision ci_ca=(src,e)->{
 };
 
 RigidBodyCollision re_ci=(src,e)->{
-  PVector Vec;
+  PVector Vec=new PVector();
   for(int i=0; i<3; i++){
     float L = i%2==0?src.r_body.dist.x/2:src.r_body.dist.y;
     float r=src.r_body.rotate+HALF_PI*i;

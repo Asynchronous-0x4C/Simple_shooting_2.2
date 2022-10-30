@@ -86,7 +86,7 @@ class Myself extends Entity{
     while(exp>=nextLevel){
       exp-=nextLevel;
       ++Level;
-      nextLevel=10+(Level-1)*10*ceil(Level/10f);
+      nextLevel=10+(Level-1)*5*ceil(Level/10f);
       levelup=true;
       ++levelupNumber;
     }
