@@ -1,3 +1,6 @@
+Color ambient=new Color(130,130,130);
+Color GI=new Color(70,70,70);
+
 class Stage{
   HashMap<String,ArrayList<TimeSchedule>> t;
   ArrayList<SpownPoint>spown;
@@ -220,6 +223,166 @@ class TimeSchedule{
   }
 }
 
+class Geometry{
+  GameProcess parent;
+  ArrayList<ArrayList<Entity>>Sync;
+  ArrayList<Entity>Objects;
+  
+  {
+    Sync=new ArrayList<>();
+    for(int i=0;i<updateNumber;i++){
+      Sync.add(new ArrayList<>());
+    }
+    Objects=new ArrayList<>();
+  }
+  
+  Geometry(GameProcess p){
+    parent=p;
+  }
+  
+  void clear(){
+    Sync.clear();
+    for(int i=0;i<updateNumber;i++){
+      Sync.add(new ArrayList<>());
+    }
+    Objects.clear();
+  }
+  
+  void addSync(int num,Entity e){
+    Sync.get(num).add(e);
+  }
+  
+  void merge(){
+    Sync.forEach(a->a.forEach(e->Objects.add(e)));
+  }
+  
+  void rendering(){
+    
+  }
+}
+
+class Primitive{
+  private Material m;
+  private Color disp;
+  private Color lc;
+  private Shape shape;
+  
+  void setMaterial(Material m){
+    this.m=m;
+  }
+  
+  void setShape(Shape s){
+    shape=s;
+  }
+  
+  void display(PGraphicsOpenGL g){
+    shape.display(g,disp);
+  }
+  
+  void displayLight(PGraphicsOpenGL g){
+    shape.display(g,lc);
+  }
+  
+  void displayMaterial(PGraphicsOpenGL g){
+    shape.display(g,new Color(disp.getAlpha(),(int)(m.getRoughness()*255f),(int)(m.getMetalness()*255f)));
+  }
+  
+  void rendering(){
+    disp=m.getSurfaceColor();
+    lc=m.getLightColor();
+  }
+}
+
+class Material{
+  private Color base;
+  private Color emission;
+  private float albedo=0.8;
+  private float roughness=0.5;
+  private float metalness=0;
+  private float emissionStrength=0;
+  
+  Material(Color b,Color e,float a,float r,float m,float s){
+    base=b;
+    emission=e;
+    albedo=a;
+    roughness=r;
+    metalness=m;
+    emissionStrength=s;
+  }
+  
+  void setBaseColor(Color c){
+    base=c;
+  }
+  
+  Color getBaseColor(){
+    return base;
+  }
+  
+  void setEmissionColor(Color c){
+    emission=c;
+  }
+  
+  Color getEmissionColor(){
+    return emission;
+  }
+  
+  void setAlbedo(float a){
+    albedo=a;
+  }
+  
+  float getAlbedo(){
+    return albedo;
+  }
+  
+  void setRoughness(float r){
+    roughness=r;
+  }
+  
+  float getRoughness(){
+    return roughness;
+  }
+  
+  void setMetalness(float m){
+    metalness=m;
+  }
+  
+  float getMetalness(){
+    return metalness;
+  }
+  
+  void setEmissionStrength(float s){
+    emissionStrength=s;
+  }
+  
+  float getEmissionStrength(){
+    return emissionStrength;
+  }
+  
+  Color getLightColor(){
+    return new Color(lightColor(emission.getRed()),lightColor(emission.getGreen()),lightColor(emission.getBlue()));
+  }
+  
+  int lightColor(float c){
+    return (int)min(255,(getMax(emission)==c?c*emissionStrength/PI:mix(c,255,(getMax(emission)*emissionStrength/9000f)))*base.getAlpha()/255f);
+  }
+  
+  Color getSurfaceColor(){
+    return new Color(surfaceColor(0,base.getRed()),surfaceColor(1,base.getGreen()),surfaceColor(2,base.getBlue()),surfaceColor(3,base.getAlpha()));
+  }
+  
+  int surfaceColor(int t,float c){
+    float emi=0;
+    switch(t){
+      case 0:emi=emission.getRed();break;
+      case 1:emi=emission.getGreen();break;
+      case 2:emi=emission.getBlue();break;
+      case 3:emi=getMax(emission);return (int)min(255,mix(c,255,emi*emissionStrength/31875f));
+    }
+    return (int)min(255,(emi==getMax(emission)?emi*emissionStrength/PI:getMax(emission)*emissionStrength/150f)
+                +(c*mix(getMax(base)==0?0:(getMax(base)+albedo*getMax(GI)*roughness)/getMax(base),c/255f*getMax(ambient)/255f,metalness)));
+  }
+}
+
 enum EnemySpown{
   Single,
   Double,
@@ -231,6 +394,10 @@ enum EnemySpown{
   Octagon,
   Nonagon,
   Decagon
+}
+
+interface Shape{
+  void display(PGraphics g,Color c);
 }
 
 interface StageProcess{

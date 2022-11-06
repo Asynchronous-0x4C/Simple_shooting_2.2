@@ -34,12 +34,15 @@ class Exp extends Entity{
   
   @Override
   void display(PGraphics g){
+    if(!inScreen)return;
+    g.rectMode(CENTER);
     g.fill(toColor(c));
     g.noStroke();
     g.rect(pos.x,pos.y,size,size);
   }
   
   void update(){
+    inScreen=-scroll.x<pos.x+size/2&&pos.x-size/2<-scroll.x+width&&-scroll.y<pos.y+size/2&&pos.y-size/2<-scroll.y+height;
     if(inScreen&&qDist(player.pos,pos,player.magnetDist)&&player.canMagnet){
       getProcess();
       player.exp+=this.exp;

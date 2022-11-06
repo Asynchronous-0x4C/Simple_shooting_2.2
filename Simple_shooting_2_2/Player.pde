@@ -39,11 +39,27 @@ class Myself extends Entity{
   
   Myself(){
     setMaxSpeed(3);
+    setColor(new Color(0,255,0,64));
     pos=new PVector(0,0);
     vel=new PVector(0,0);
     HP=new Status(1);
     Attak=new Status(1);
     Defence=new Status(0);
+    setShape((g,c)->{
+      g.pushMatrix();
+      g.translate(pos.x,pos.y);
+      g.rotate(-rotate);
+      g.noStroke();
+      g.fill(toColor(c));
+      g.ellipse(0,0,size,size);
+      g.noFill();
+      g.stroke(toColor(c));
+      g.strokeWeight(3);
+      g.arc(0,0,size*1.5,size*1.5,
+          radians(-5)-PI/2-selectedWeapon.diffuse/2,radians(5)-PI/2+selectedWeapon.diffuse/2);
+      g.popMatrix();
+    });
+    setPrimitive(0.8,1,0,0);
     absHP=HP.getMax().doubleValue();
     absAttak=Attak.getMax().doubleValue();
     absDefence=Defence.getMax().doubleValue();
@@ -60,17 +76,6 @@ class Myself extends Entity{
   
   @Override
   void display(PGraphics g){
-    g.pushMatrix();
-    g.translate(pos.x,pos.y);
-    g.rotate(-rotate);
-    g.strokeWeight(1);
-    g.noFill();
-    g.stroke(toColor(c));
-    g.ellipse(0,0,size,size);
-    g.strokeWeight(3);
-    g.arc(0,0,size*1.5,size*1.5,
-        radians(-5)-PI/2-selectedWeapon.diffuse/2,radians(5)-PI/2+selectedWeapon.diffuse/2);
-    g.popMatrix();
     if(!camera.moveEvent){
       drawUI();
     }
@@ -83,6 +88,7 @@ class Myself extends Entity{
   void update(){
     super.update();
     if(isDead)return;
+    main.geometry.Objects.add(this);
     while(exp>=nextLevel){
       exp-=nextLevel;
       ++Level;

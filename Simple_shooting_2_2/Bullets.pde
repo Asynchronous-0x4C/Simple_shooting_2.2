@@ -86,8 +86,8 @@ class Bullet extends Entity{
   }
   
    public void setAABB(){
-    Center=pos.copy().add(vel.copy().mult(0.5f).mult(vectorMagnification));
-    AxisSize=new PVector(abs(vel.x),abs(vel.y)).mult(vectorMagnification);
+    Center=pos.copy().add(vel.copy().mult(0.5f).mult(max(1,vectorMagnification)));
+    AxisSize=new PVector(abs(vel.x),abs(vel.y)).mult(max(1,vectorMagnification));
     putAABB();
   }
   
@@ -132,7 +132,7 @@ class Bullet extends Entity{
   @Override
   void EnemyHit(Enemy e,boolean p){
     e.Hit(parent);
-    e.addtionalVel=e.vel.copy().mult(-(vel.mag()/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     isDead=true;
     e.BulletHit(this,false);
   }
@@ -490,7 +490,7 @@ class MirrorBullet extends SubBullet implements ExcludeGPGPU{
   @Override
   void EnemyHit(Enemy e,boolean b){
     nextHitEnemy.add(e);
-    e.addtionalVel=e.vel.copy().mult(-(20/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     if(!HitEnemy.contains(e)){
       e.Hit(this.parent);
     }
@@ -725,7 +725,7 @@ class LaserBullet extends SubBullet implements ExcludeGPGPU{
     nextHitEnemy.add(e);
     if(!HitEnemy.contains(e)){
       e.Hit(parent);
-      e.addtionalVel=e.vel.copy().mult(-(20f/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     }
   }
   
@@ -808,7 +808,7 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
     nextHitEnemy.add(e);
     if(!HitEnemy.contains(e)){
       e.Hit(parent);
-      e.addtionalVel=e.vel.copy().mult(-(20f/e.Mass));
+      e.vel.add(vel.copy().mult(1/e.Mass));
     }
   }
   
@@ -842,7 +842,7 @@ class ReflectorBullet extends SubBullet{
     if(!HitEnemy.contains(e)){
       reflectFromNormal(atan2(pos,e.pos));
       e.Hit(parent);
-      e.addtionalVel=e.vel.copy().mult(-(20f/e.Mass));
+      e.vel.add(vel.copy().mult(1/e.Mass));
       age-=30;
     }
   }
@@ -882,7 +882,7 @@ class ShadowReflectorBullet extends ReflectorBullet{
         NextEntities.add(sr);
       }
       e.Hit(parent);
-      e.addtionalVel=e.vel.copy().mult(-(20f/e.Mass));
+      e.vel.add(vel.copy().mult(1/e.Mass));
       age-=30;
     }
   }
@@ -941,12 +941,16 @@ class ThroughBullet extends Bullet{
   }
   
   @Override
+  void ExplosionHit(Explosion e,boolean b){
+    isDead=true;
+  }
+  
+  @Override
   void EnemyHit(Enemy e,boolean b){
     nextHitEnemy.add(e);
     if(HitEnemy.contains(e))return;
-    if(e instanceof Explosion)isDead=true;
     e.Hit(parent);
-    e.addtionalVel=e.vel.copy().mult(-(vel.mag()/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     if(e instanceof Turret_S)((Turret_S)e).target=parent.parent;
   }
   
@@ -966,12 +970,16 @@ class EnemyPoisonBullet extends ThroughBullet{
   }
   
   @Override
+  void ExplosionHit(Explosion e,boolean b){
+    isDead=true;
+  }
+  
+  @Override
   void EnemyHit(Enemy e,boolean b){
     nextHitEnemy.add(e);
     if(HitEnemy.contains(e))return;
-    if(e instanceof Explosion)isDead=true;
     e.Hit(parent);
-    e.addtionalVel=e.vel.copy().mult(-(vel.mag()/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     if(e instanceof Turret_S)((Turret_S)e).target=parent.parent;
   }
   
@@ -1491,7 +1499,7 @@ class SatelliteBullet extends SubBullet{
   @Override
   void EnemyHit(Enemy e,boolean b){
     e.Hit(parent);
-    e.addtionalVel=e.vel.copy().mult(-(vel.mag()/e.Mass));
+    e.vel.add(vel.copy().mult(1/e.Mass));
     isDead=true;
   }
   
@@ -1527,6 +1535,87 @@ class HexiteBullet extends SatelliteBullet{
     }
     g.endShape(CLOSE);
   }
+}
+
+class TLASBullet{
+  
+}
+
+class BLASBullet extends SubBullet{
+  HashMap<Entity,Float>cooltimes;
+  HashSet<Entity>outEntity;
+  float radius=0;
+  float noiseX=0;
+  float noiseY=0;
+  float seed=random(0,100);
+  
+  BLASBullet(SubWeapon w,int num){
+    super(w);
+    setNear(floor(random(0,nearEnemy.size())));
+    bulletColor=new Color(35,70,255,70);
+    cooltimes=new HashMap<Entity,Float>();
+    outEntity=new HashSet<Entity>();
+  }
+  
+  @Override
+  void display(PGraphics g){
+    if(Debug)displayAABB(g);
+    g.fill(toColor(bulletColor));
+    g.stroke(toColor(bulletColor));
+    g.strokeWeight(1);
+    g.ellipse(pos.x,pos.y,radius+noiseX,radius+noiseY);
+  }
+  
+  public void update(){
+    if(age>duration){
+      isDead=true;
+      return;
+    }
+    age+=vectorMagnification;
+    radius=radius<scale?radius+vectorMagnification/1.5*scale/30:scale;
+    noiseX=(noise(seed,millis()/1000f)-0.5)*radius*0.6;
+    noiseX=(noise(millis()/1000f,seed)-0.5)*radius*0.6;
+    HashMap<Entity,Float>nextCooltimes=new HashMap<Entity,Float>();
+    cooltimes.forEach((k,v)->{
+      cooltimes.replace(k,v-vectorMagnification);
+      if(Entities.contains(k)&&!(outEntity.contains(k)&&cooltimes.get(k)<=0)){
+        nextCooltimes.put(k,cooltimes.get(k));
+        outEntity.add(k);
+      }
+    });
+    cooltimes=nextCooltimes;
+    pos.add(vel.copy().mult(vectorMagnification)).add(noise(seed,millis()/1000f)*vectorMagnification,noise(millis()/1000f,seed)*vectorMagnification);
+    Center=pos;
+    AxisSize=new PVector(scale,scale);
+    putAABB();
+  }
+  
+  @Override
+  void EnemyCollision(Enemy e){
+    if(qDist(pos,e.pos,(radius+e.size)*0.5f)){
+      EnemyHit(e,true);
+    }
+  }
+  
+  @Override
+  void EnemyHit(Enemy e,boolean b){
+    outEntity.remove(e);
+    if(!cooltimes.containsKey(e)){
+      e.Hit(this.parent);
+      cooltimes.put(e,15f);
+    }else{
+      if(cooltimes.get(e)<=0){
+        e.Hit(this.parent);
+        cooltimes.replace(e,15f);
+      }
+    }
+  }
+  
+  @Override
+  void WallCollision(WallEntity w){}
+  
+  @Override
+  void WallHit(WallEntity w,boolean b){}
 }
 
 class HomingBullet extends SubBullet{

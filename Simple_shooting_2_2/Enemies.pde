@@ -4,7 +4,6 @@ AABBData[]SortedDataX;
 
 class Enemy extends Entity implements Cloneable{
   HashMap<Class<? extends Weapon>,Float>MultiplyerMap=new HashMap<Class<? extends Weapon>,Float>();
-  PVector addtionalVel=new PVector();
   Weapon useWeapon=null;
   Weapon ShotWeapon=null;
   ItemTable dropTable;
@@ -20,14 +19,36 @@ class Enemy extends Entity implements Cloneable{
   protected double maxHP=10d;
   protected double HP=10d;
   
-  Enemy(){
-    setColor(new Color(0,0,255));
+  Enemy(){//check
+    setColor(new Color(0,0,255,64));
+    shape=((g,c)->{
+      g.pushMatrix();
+      g.translate(pos.x,pos.y);//pos->null(always)
+      g.rotate(-rotate);
+      g.rectMode(CENTER);
+      g.noStroke();
+      g.fill(toColor(c));
+      g.rect(0,0,size*0.7071,size*0.7071);
+      g.popMatrix();
+    });
     init();
+    setPrimitive(0.8,1,0,0);
   }
   
   Enemy(PVector pos){
+    shape=((g,c)->{
+      g.pushMatrix();
+      g.translate(pos.x,pos.y);
+      g.rotate(-rotate);
+      g.rectMode(CENTER);
+      g.noStroke();
+      g.fill(toColor(c));
+      g.rect(0,0,size*0.7071,size*0.7071);
+      g.popMatrix();
+    });
     init();
     this.pos=pos;
+    setPrimitive(0.8,1,0,0);
   }
   
   protected void init(){
@@ -43,21 +64,6 @@ class Enemy extends Entity implements Cloneable{
     if(Debug){
       displayAABB(g);
     }
-    g.pushMatrix();
-    g.translate(pos.x,pos.y);
-    g.rotate(-rotate);
-    g.rectMode(CENTER);
-    g.strokeWeight(1);
-    g.noFill();
-    if(Debug){
-      g.colorMode(HSB);
-      g.stroke(hue,255,255);
-      g.colorMode(RGB);
-    }else{
-      g.stroke(toColor(c));
-    }
-    g.rect(0,0,size*0.7071,size*0.7071);
-    g.popMatrix();
   }
   
   void update(){
@@ -68,6 +74,7 @@ class Enemy extends Entity implements Cloneable{
     AxisSize=new PVector(size,size);
     putAABB();
     if(inScreen){
+      main.geometry.addSync(threadNum,this);
       if(!nearEnemy.contains(this)){
         nearEnemy.add(this);
       }else{
@@ -92,7 +99,7 @@ class Enemy extends Entity implements Cloneable{
       Speed=0;
     }
     addVel(accelSpeed,false);
-    pos.add(vel).add(addtionalVel);
+    pos.add(vel.copy().mult(vectorMagnification));
     inScreen=-scroll.x<pos.x+size/2&&pos.x-size/2<-scroll.x+width&&-scroll.y<pos.y+size/2&&pos.y-size/2<-scroll.y+height;
   }
   
@@ -103,14 +110,9 @@ class Enemy extends Entity implements Cloneable{
     }else{
       Speed+=accel*vectorMagnification;
     }
-    vel.add(cos(-rotate-HALF_PI)*Speed,sin(-rotate-HALF_PI)*Speed).mult(vectorMagnification);
-    addtionalVel.mult(0.95);
-    if(vel.magSq()>maxSpeed*maxSpeed*vectorMagnification){
-      vel.normalize().mult(maxSpeed).mult(vectorMagnification);
-    }
-    if(addtionalVel.magSq()>maxAddtionalSpeed*maxAddtionalSpeed*vectorMagnification){
-      addtionalVel.normalize().mult(maxAddtionalSpeed).mult(vectorMagnification);
-    }
+    vel.mult(0.95);
+    vel.x=abs(cos(-rotate-HALF_PI)*Speed)<abs(vel.x)?vel.x:cos(-rotate-HALF_PI)*Speed;
+    vel.y=abs(sin(-rotate-HALF_PI)*Speed)<abs(vel.y)?vel.y:sin(-rotate-HALF_PI)*Speed;
   }
   
   void addMultiplyer(Class<? extends Weapon> c,float f){
@@ -140,7 +142,7 @@ class Enemy extends Entity implements Cloneable{
       Down();
       return;
     }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      NextEntities.add(new Particle(this,(int)(damage*0.5),1));
     }
   }
   
@@ -152,7 +154,7 @@ class Enemy extends Entity implements Cloneable{
       Down();
       return;
     }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      NextEntities.add(new Particle(this,(int)(damage*0.5),1));
     }
   }
   
@@ -161,6 +163,7 @@ class Enemy extends Entity implements Cloneable{
   }
   
   void Down(){
+    killCount.incrementAndGet();
     isDead=true;
     NextEntities.add(new Particle(this,(int)(size*3),1));
     NextEntities.add(new Exp(this,ceil(((float)maxHP)*expMag)));
@@ -204,17 +207,12 @@ class Enemy extends Entity implements Cloneable{
   }
   
   @Override
-  void EnemyHit(Enemy e,boolean b){
+  void EnemyHit(Enemy e,boolean b){//check
     PVector c=pos.copy().sub(e.pos).normalize();
     PVector d=new PVector((size+e.size)*0.5-dist(pos,e.pos),0).rotate(-atan2(pos.x-e.pos.x,pos.y-e.pos.y)-PI*0.5);
     vel=c.copy().mult((-e.Mass/(Mass+e.Mass))*(1+this.e*e.e)*dot(vel.copy().sub(e.vel),c.copy())).add(vel);
     e.vel=c.copy().mult((Mass/(Mass+e.Mass))*(1+this.e*e.e)*dot(vel.copy().sub(e.vel),c.copy())).add(e.vel);
     pos.sub(d);
-    if(vel.magSq()>maxSpeed*maxSpeed){
-      PVector v=vel.copy().normalize().mult(maxSpeed);
-      addtionalVel=vel.copy().sub(v);
-      vel=v;
-    }
   }
   
   @Override
@@ -233,9 +231,7 @@ class Enemy extends Entity implements Cloneable{
   void MyselfHit(Myself m,boolean b){
     float r=-atan2(pos.x-m.pos.x,pos.y-m.pos.y)-PI*0.5;
     float d=(m.size+size)*0.5-dist(m.pos,pos);
-    vel=new PVector(-cos(r)*d,-sin(r)*d);
-    addtionalVel=new PVector(0,0);
-    pos.add(vel);
+    pos.add(new PVector(-cos(r)*d,-sin(r)*d));
     m.Hit(1);
   }
   
@@ -276,6 +272,7 @@ class DummyEnemy extends Enemy implements BlastResistant{
   
   @Override
   void Down(){
+    killCount.incrementAndGet();
     isDead=true;
     NextEntities.add(new Particle(this,(int)(size*3),1));
     NextEntities.add(exp);
@@ -984,13 +981,13 @@ class AntiBullet extends Enemy{
   void BulletCollision(Bullet b){
     if(CircleCollision(pos,size,b.pos,b.vel)){
       b.isDead=true;
-      addtionalVel=vel.copy().mult(-(vel.mag()/Mass));
+      vel.add(b.vel.copy().mult(1/Mass));
       if(b instanceof GravityBullet||b instanceof GrenadeBullet||b instanceof FireBullet||b instanceof PlasmaFieldBullet)Hit(b.parent);
     }
   }
   
   void HitBullet(Weapon w){
-    addtionalVel=vel.copy().mult(-(vel.mag()/Mass));
+    vel.add(vel.copy().mult(-1/Mass));
     if(w instanceof G_ShotWeapon||w instanceof GrenadeWeapon||w instanceof FireWeapon||w instanceof IceWeapon||w instanceof PlasmaFieldWeapon)super.Hit(w);
   }
 }
@@ -1238,9 +1235,7 @@ class CollisionEnemy extends Enemy{
   void MyselfHit(Myself m,boolean b){
     float r=-atan2(pos.x-m.pos.x,pos.y-m.pos.y)-PI*0.5;
     float d=(m.size+size)*0.5-dist(m.pos,pos);
-    vel=new PVector(-cos(r)*d,-sin(r)*d);
-    addtionalVel=new PVector(0,0);
-    pos.add(vel);
+    pos.add(new PVector(-cos(r)*d,-sin(r)*d));
     hit=true;
   }
   
@@ -1459,7 +1454,7 @@ class Barrier extends M_Boss_Y implements BossEnemy{
   @Override
   void BulletHit(Bullet b,boolean p){
     if(b instanceof GravityBullet){
-      addtionalVel=vel.copy().mult(-(b.vel.mag()/Mass));
+      vel.add(b.vel.copy().mult(1/Mass));
     }
   }
   

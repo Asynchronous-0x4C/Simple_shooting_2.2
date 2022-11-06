@@ -724,6 +724,46 @@ class HexiteWeapon extends SatelliteWeapon{
   }
 }
 
+class BLASWeapon extends SubWeapon{
+  
+  BLASWeapon(){
+    super();
+    setName("B.L.A.S.");
+  }
+  
+  BLASWeapon(JSONObject o){
+    super(o);
+    setName("B.L.A.S.");
+  }
+  
+  @Override
+  public void shot(){
+    for(int i=0;i<this.bulletNumber;i++){
+        NextEntities.add(new BLASBullet(this,i));
+    }
+  }
+}
+
+class TLASWeapon extends SubWeapon{
+  
+  TLASWeapon(){
+    super();
+    setName("T.L.A.S.");
+  }
+  
+  TLASWeapon(JSONObject o){
+    super(o);
+    setName("T.L.A.S.");
+  }
+  
+  @Override
+  public void shot(){
+    for(int i=0;i<this.bulletNumber;i++){
+        //NextEntities.add(new TLASBullet(this,i));
+    }
+  }
+}
+
 class itemWeapon extends SubWeapon{
   
   itemWeapon(){

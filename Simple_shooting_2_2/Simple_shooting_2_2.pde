@@ -58,6 +58,7 @@ PShader titleShader;
 PShader Title_HighShader;
 java.util.List<GravityBullet>LensData=Collections.synchronizedList(new ArrayList<GravityBullet>());
 
+AtomicInteger killCount=new AtomicInteger(0);
 GameProcess main;
 Stage stage;
 
@@ -78,6 +79,7 @@ JSONObject conf;
 
 PImage mouseImage;
 PFont font_70;
+PFont font_50;
 PFont font_30;
 PFont font_20;
 PFont font_15;
@@ -216,6 +218,7 @@ void setup(){
   font_15=createFont("SansSerif.plain",15);
   font_20=createFont("SansSerif.plain",20);
   font_30=createFont("SansSerif.plain",30);
+  font_50=createFont("SansSerif.plain",50);
   font_70=createFont("SansSerif.plain",70);
   textFont(font_15);
   FXAAShader=loadShader(ShaderPath+"FXAA.glsl");
@@ -434,7 +437,7 @@ String getLanguageText(String s){
     g.textFont(font_70);
     g.textAlign(CENTER);
     g.textSize(70);
-    g.text("Simple_shooting_2.1",width*0.5,130);
+    g.text("Simple_shooting_2.2",width*0.5,130);
     g.fill(200);
     g.textFont(font_15);
     g.textAlign(LEFT);
@@ -712,9 +715,9 @@ String getLanguageText(String s){
     resultAnimation=true;
     resultTime=0;
     MenuButton resultButton=new MenuButton("OK");
-    resultButton.setBounds(width*0.5f-60,height*0.7f,120,25);
+    resultButton.setBounds(width*0.5f-60,height*0.8f,120,25);
     resultButton.addWindowResizeEvent(()->{
-      resultButton.setBounds(width*0.5f-60,height*0.7f,120,25);
+      resultButton.setBounds(width*0.5f-60,height*0.8f,120,25);
     });
     resultButton.addListener(()->{
       scene=0;
@@ -746,8 +749,13 @@ String getLanguageText(String s){
   textAlign(CENTER);
   fill(0);
   textSize(50);
-  textFont(font_30);
+  textFont(font_50);
   text(StageFlag.contains("Game_Over")?"Game over":"Stage clear",width*0.5f,height*0.2f);
+  textAlign(LEFT);
+  textSize(20);
+  textFont(font_20);
+  text(Language.getString("ui_kill")+":"+killCount+"\n"+
+       "Time:"+floor(stage.time/60),width*0.5-150,height*0.2+100);
   resultSet.display();
   resultSet.update();
   if(resultAnimation){
@@ -1292,6 +1300,14 @@ String getLanguageText(String s){
   return new Color(c.getRed(),c.getGreen(),c.getBlue(),c.getAlpha());
 }
 
+public int getMax(Color c){
+  return max(c.getRed(),c.getGreen(),c.getBlue());
+}
+
+public float mix(float x,float y,float a){
+  return x*(1-a)+y*a;
+}
+
 public boolean isParent(Entity e,Entity f){
   if(e instanceof Bullet||f instanceof Bullet){
     if(f instanceof Bullet)return false;
@@ -1333,6 +1349,8 @@ public boolean isParent(Entity e,Entity f){
 
 class Entity implements Egent, Cloneable {
   RigidBody r_body;
+  Primitive primitive;
+  Shape shape;
   DeadEvent dead=(e)->{};
   float size=20;
   PVector pos;
@@ -1340,6 +1358,7 @@ class Entity implements Egent, Cloneable {
   PVector Center=new PVector();
   PVector AxisSize=new PVector();
   Color c=new Color(0,255,0);
+  Color emission=new Color(0,0,0);
   float rotate=0;
   float accelSpeed=0.25f;
   float maxSpeed=7.5f;
@@ -1352,8 +1371,19 @@ class Entity implements Egent, Cloneable {
 
   Entity() {
   }
-
-   public void display(PGraphics g){
+  
+  void setPrimitive(float albedo,float roughness,float metalness,float strength){
+    primitive=new Primitive();
+    primitive.shape=shape;
+    primitive.setMaterial(new Material(c,emission,albedo,roughness,metalness,strength));
+    primitive.rendering();
+  }
+  
+  void setShape(Shape s){
+    shape=s;
+  }
+  
+  public void display(PGraphics g){
   }
 
    public void update(){

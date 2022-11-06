@@ -25,7 +25,6 @@ class GameComponent{
   protected int resizeNumber=0;
   
   GameComponent(){
-    
   }
   
   GameComponent setBounds(float x,float y,float dx,float dy){

@@ -1,4 +1,4 @@
-class Explosion extends Enemy{
+class Explosion extends Entity{
   ExplosionParticle p;
   HashSet<Entity>HitEnemy;
   boolean myself=false;
@@ -96,12 +96,10 @@ class Explosion extends Enemy{
     m.ExplosionHit(this,true);
   }
   
-  @Override
   void Hit(Weapon w){
     return;
   }
   
-  @Override
   void Down(){
     isDead=false;
   }

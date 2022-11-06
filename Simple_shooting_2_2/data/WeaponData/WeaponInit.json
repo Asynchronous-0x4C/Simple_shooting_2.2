@@ -351,6 +351,31 @@
     }
   },
   {
+    "name":"BLAS",
+    "type":"weapon",
+    "weight":18,
+    "projectile":1,
+    "scale":30,
+    "power":1,
+    "velocity":2,
+    "duration":120,
+    "cooltime":150,
+    "through":0,
+    "nextWeapon":{
+      "name":"ShadowReflector",
+      "need":[
+        {
+          "name":"Reflector",
+          "type":"use"
+        },
+        {
+          "name":"power",
+          "type":"exist"
+        }
+      ]
+    }
+  },
+  {
     "name":"projectile",
     "type":"item",
     "value":1,

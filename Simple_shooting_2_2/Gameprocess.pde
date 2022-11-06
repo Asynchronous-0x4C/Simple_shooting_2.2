@@ -5,7 +5,12 @@ class GameProcess{
   ComponentSet UpgradeSet;
   ComponentSet PauseSet;
   WallEntity[] wall=null;
+  Geometry geometry;
   Color menuColor=new Color(230,230,230);
+  PGraphicsOpenGL main;
+  PGraphicsOpenGL light;
+  PGraphicsOpenGL material;
+  PShader renderer;
   PVector FieldSize=null;
   float UItime=0;
   boolean gameOver=false;
@@ -25,12 +30,17 @@ class GameProcess{
     setup();
   }
   
-   public void setup(){
+  public void setup(){
+    main=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
+    light=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
+    material=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
+    renderer=loadShader(ShaderPath+"renderer.glsl");
     init();
   }
   
    public void init(){
      FieldSize=null;
+     geometry=new Geometry(this);
      EventSet=new HashMap<String,String>();
      HUDSet=new ComponentSet();
      UpgradeSet=new ComponentSet();
@@ -46,6 +56,7 @@ class GameProcess{
      stage=new Stage();
      StageFlag.clear();
      pause=false;
+     killCount.set(0);
      sumLevel=0;
      addtionalProjectile=0;
      addtionalScale=1;
@@ -188,22 +199,13 @@ class GameProcess{
     HUDSet.addAll(tu_move,tu_shot,tu_shot_2,tu_attack,tu_exp,tu_upgrade);
   }
   
-   public void process(){
+   public void process(){//check
     if(player.levelup)pause=true;
     if(player.isDead){
       pause=true;
     }
     done=false;
-    background(0);
-    if(HighQuality){
-      Title_HighShader.set("time",0);
-      Title_HighShader.set("mouse",-scroll.x/4096f,scroll.y/4096f);
-      Title_HighShader.set("resolution",width,height);
-      filter(Title_HighShader);
-    }else{
-      backgroundShader.set("offset",player.pos.x,-player.pos.y);
-      filter(backgroundShader);
-    }
+    background(toColor(ambient));
     drawShape();
     if(gameOver){
       StageFlag.add("Game_Over");
@@ -339,39 +341,41 @@ class GameProcess{
     pushMatrix();
     translate(scroll.x,scroll.y);
     localMouse=unProject(mouseX,mouseY);
+    geometry.merge();
+    main.beginDraw();
+    main.beginDraw();
+    main.background(0,0);
+    main.translate(scroll.x,scroll.y);
+    main.noStroke();
+    main.rectMode(CENTER);
+    geometry.Objects.forEach(e->e.primitive.display(main));
+    main.endDraw();
+    light.beginDraw();
+    light.background(0);
+    light.translate(scroll.x,scroll.y);
+    light.noStroke();
+    light.rectMode(CENTER);
+    light.blendMode(LIGHTEST);
+    geometry.Objects.forEach(e->e.primitive.displayLight(light));
+    light.endDraw();
+    material.beginDraw();
+    material.background(0);
+    material.translate(scroll.x,scroll.y);
+    material.noStroke();
+    material.rectMode(CENTER);
+    material.blendMode(ADD);
+    geometry.Objects.forEach(e->e.primitive.displayMaterial(material));
+    material.endDraw();
+    renderer.set("light",light);
+    renderer.set("primitive",main);
+    renderer.set("material",material);
+    renderer.set("resolution",width,height);
+    renderer.set("GI",GI.getRed()/255f,GI.getGreen()/255f,GI.getBlue()/255f);
+    renderer.set("ambient",ambient.getRed()/255f,ambient.getGreen()/255f,ambient.getBlue()/255f);
+    filter(renderer);
+    geometry.clear();
     stage.display();
-    if(doGPGPU){
-      loadPixels();
-      byte ThreadNumber=(byte)min(Entities.size(),(int)drawNumber);
-      float block=Entities.size()/(float)ThreadNumber;
-      for(byte b=0;b<ThreadNumber-1;b++){
-        DrawProcess.get(b).setData(round(block*b),round(block*(b+1)));
-      }
-      try{
-        drawFuture.clear();
-        for(int i=0;i<ThreadNumber-1;i++){
-          drawFuture.add(exec.submit(DrawProcess.get(i)));
-        }
-      }catch(Exception e){println(e);
-      }
-      for(int i=round(block*(ThreadNumber-1));i<round(block*ThreadNumber);i++){
-        Entities.get(i).display(g);
-      }
-      for(Future<PGraphics> f:drawFuture){
-        try{
-          image(f.get(),-scroll.x,-scroll.y);
-        }
-        catch(ConcurrentModificationException e) {
-          e.printStackTrace();
-        }
-        catch(InterruptedException|ExecutionException F) {println(F);F.printStackTrace();
-        }
-        catch(NullPointerException g) {
-        }
-      }
-    }else{
-      Entities.forEach(e->{e.display(g);});
-    }
+    Entities.forEach(e->{e.display(g);});
     if(!player.isDead)player.display(g);
     if(LensData.size()>0){
       loadPixels();
@@ -426,6 +430,7 @@ class GameProcess{
     textFont(font_15);
     textAlign(CENTER);
     text("Time "+nf(floor(stage.time/3600),2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
+    text(Language.getString("ui_kill")+":"+killCount,width-200,78);
     pop();
   }
   
@@ -647,7 +652,7 @@ class GameProcess{
       player.HP.set(0);
     }else{
       try{
-        Class c=Class.forName("Simple_shooting_2_1$"+tokens.get(1).getText().replace("\"",""));
+        Class c=Class.forName("Simple_shooting_2_2$"+tokens.get(1).getText().replace("\"",""));
         Entities.forEach(e->{
           if(c.isInstance(e))e.isDead=true;
         });
@@ -669,7 +674,7 @@ class GameProcess{
         parser.addErrorListener(ThrowingErrorListener.INSTANCE.setWarningMap(DebugWarning));
         parser.command();
         if(parser.getNumberOfSyntaxErrors()>0)continue;
-        main.commandProcess(command_tokens.getTokens());
+        commandProcess(command_tokens.getTokens());
       }
     }catch(NullPointerException e){
       addWarning("No such file");
