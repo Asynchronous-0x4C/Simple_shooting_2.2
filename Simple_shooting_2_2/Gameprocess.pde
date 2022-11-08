@@ -222,6 +222,7 @@ class GameProcess{
   }
 
   public void updateShape(){
+    geometry.clear();
     if(!pause){
       EntitySet=new HashSet(Entities);
       for(int i=0;i<nearEnemy.size();i++){
@@ -359,7 +360,7 @@ class GameProcess{
     geometry.Objects.forEach(e->e.primitive.displayLight(light));
     light.endDraw();
     material.beginDraw();
-    material.background(0);
+    material.background(0,255,0);
     material.translate(scroll.x,scroll.y);
     material.noStroke();
     material.rectMode(CENTER);
@@ -373,7 +374,6 @@ class GameProcess{
     renderer.set("GI",GI.getRed()/255f,GI.getGreen()/255f,GI.getBlue()/255f);
     renderer.set("ambient",ambient.getRed()/255f,ambient.getGreen()/255f,ambient.getBlue()/255f);
     filter(renderer);
-    geometry.clear();
     stage.display();
     Entities.forEach(e->{e.display(g);});
     if(!player.isDead)player.display(g);
@@ -417,7 +417,7 @@ class GameProcess{
     }
     rectMode(CORNER);
     noFill();
-    stroke(200);
+    stroke(255);
     strokeWeight(1);
     rect(200,30,width-230,30);
     fill(255);
@@ -764,20 +764,25 @@ class WallEntity extends Entity{
   
   {
     size=0;
+    shape=(g,c,e)->{
+      WallEntity w=(WallEntity)e;
+      g.strokeWeight(2);
+      g.stroke(toColor(c));
+      g.line(w.pos.x,w.pos.y,w.pos.x+w.dist.x,w.pos.y+w.dist.y);
+    };
   }
   
   WallEntity(PVector pos,PVector dist){
     this.pos=pos;
     this.dist=dist;
     this.norm=new PVector(-dist.y,dist.x).normalize();
+    setColor(new Color(25,25,25,200));
+    setPrimitive(0.9,0.5,0.5,0);
   }
   
   @Override
   void display(PGraphics g){
     if(Debug)displayAABB(g);
-    g.strokeWeight(2);
-    g.stroke(255);
-    g.line(pos.x,pos.y,pos.x+dist.x,pos.y+dist.y);
   }
   
   @Override

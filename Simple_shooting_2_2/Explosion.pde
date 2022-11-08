@@ -50,7 +50,7 @@ class Explosion extends Entity{
     isDead=p.isDead;
     Center=pos;
     AxisSize=new PVector(size,size);
-    putAABB();
+    putOnlyAABB();
   }
   
   @Override

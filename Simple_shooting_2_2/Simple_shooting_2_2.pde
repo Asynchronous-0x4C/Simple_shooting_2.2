@@ -1347,7 +1347,7 @@ public boolean isParent(Entity e,Entity f){
   mouseWheelCount+=e.getCount();
 }
 
-class Entity implements Egent, Cloneable {
+class Entity implements Egent,Cloneable{
   RigidBody r_body;
   Primitive primitive;
   Shape shape;
@@ -1368,6 +1368,7 @@ class Entity implements Egent, Cloneable {
   int threadNum=0;
   boolean isDead=false;
   boolean pDead=false;
+  boolean inScreen=true;
 
   Entity() {
   }
@@ -1376,7 +1377,12 @@ class Entity implements Egent, Cloneable {
     primitive=new Primitive();
     primitive.shape=shape;
     primitive.setMaterial(new Material(c,emission,albedo,roughness,metalness,strength));
+    primitive.setParent(this);
     primitive.rendering();
+  }
+  
+  void setGeometry(){
+    if(inScreen)main.geometry.addSync(threadNum,this);
   }
   
   void setShape(Shape s){
@@ -1418,6 +1424,9 @@ class Entity implements Egent, Cloneable {
     clone.pos=pos==null?null:pos.copy();
     clone.vel=vel==null?null:vel.copy();
     clone.c=cloneColor(c);
+    clone.primitive=primitive.clone();
+    clone.primitive.setParent(clone);
+    clone.shape=primitive.shape;
     return clone;
   }
   
@@ -1426,6 +1435,16 @@ class Entity implements Egent, Cloneable {
   }
   
   protected void putAABB(){
+    inScreen=-scroll.x<Center.x+AxisSize.x/2&&Center.x-AxisSize.x/2<-scroll.x+width&&-scroll.y<Center.y+AxisSize.y/2&&Center.y-AxisSize.y/2<-scroll.y+height;
+    setGeometry();
+    float x=AxisSize.x*0.5f;
+    float min=Center.x-x;
+    float max=Center.x+x;
+    HeapEntityDataX.get(threadNum).add(new AABBData(min,"s",this));
+    HeapEntityDataX.get(threadNum).add(new AABBData(max,"e",this));
+  }
+  
+  protected void putOnlyAABB(){
     float x=AxisSize.x*0.5f;
     float min=Center.x-x;
     float max=Center.x+x;

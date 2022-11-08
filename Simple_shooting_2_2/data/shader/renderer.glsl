@@ -1,4 +1,4 @@
-const vec2 offset=vec2(-10.,10.);
+const vec2 offset=vec2(-5.,5.);
 const float power=1.5;
 const float gamma=1.0/power;
 const float albedo=0.2;

@@ -256,16 +256,34 @@ class Geometry{
     Sync.forEach(a->a.forEach(e->Objects.add(e)));
   }
   
-  void rendering(){
-    
+  void cleanUp(){
+    HashSet<Entity>mem=new HashSet<>();
+    HashSet<Entity>multi=new HashSet<>();
+    Objects.forEach(e->{
+      if(mem.contains(e)){
+        if(!multi.contains(e)){
+          multi.add(e);
+        }
+      }else{
+        mem.add(e);
+      }
+    });
+    multi.forEach(e->{
+      Objects.remove(e);
+    });
   }
 }
 
-class Primitive{
+class Primitive implements Cloneable{
+  private Entity parent;
   private Material m;
   private Color disp;
   private Color lc;
   private Shape shape;
+  
+  void setParent(Entity p){
+    parent=p;
+  }
   
   void setMaterial(Material m){
     this.m=m;
@@ -276,24 +294,34 @@ class Primitive{
   }
   
   void display(PGraphicsOpenGL g){
-    shape.display(g,disp);
+    shape.display(g,disp,parent);
   }
   
   void displayLight(PGraphicsOpenGL g){
-    shape.display(g,lc);
+    shape.display(g,lc,parent);
   }
   
   void displayMaterial(PGraphicsOpenGL g){
-    shape.display(g,new Color(disp.getAlpha(),(int)(m.getRoughness()*255f),(int)(m.getMetalness()*255f)));
+    shape.display(g,new Color(disp.getAlpha(),(int)(m.getRoughness()*255f),(int)(m.getMetalness()*255f)),parent);
   }
   
   void rendering(){
     disp=m.getSurfaceColor();
     lc=m.getLightColor();
   }
+  
+  @Override
+  Primitive clone()throws CloneNotSupportedException{
+    Primitive clone=new Primitive();
+    clone.m=m.clone();
+    clone.disp=cloneColor(disp);
+    clone.lc=cloneColor(lc);
+    clone.shape=shape;
+    return clone;
+  }
 }
 
-class Material{
+class Material implements Cloneable{
   private Color base;
   private Color emission;
   private float albedo=0.8;
@@ -308,6 +336,10 @@ class Material{
     roughness=r;
     metalness=m;
     emissionStrength=s;
+  }
+  
+  Material clone(){
+    return new Material(cloneColor(base),cloneColor(emission),albedo,roughness,metalness,emissionStrength);
   }
   
   void setBaseColor(Color c){
@@ -397,7 +429,7 @@ enum EnemySpown{
 }
 
 interface Shape{
-  void display(PGraphics g,Color c);
+  void display(PGraphics g,Color c,Entity e);
 }
 
 interface StageProcess{

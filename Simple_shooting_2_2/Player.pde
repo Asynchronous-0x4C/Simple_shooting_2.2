@@ -45,18 +45,19 @@ class Myself extends Entity{
     HP=new Status(1);
     Attak=new Status(1);
     Defence=new Status(0);
-    setShape((g,c)->{
+    setShape((g,c,e)->{
+      Myself m=(Myself)e;
       g.pushMatrix();
-      g.translate(pos.x,pos.y);
-      g.rotate(-rotate);
+      g.translate(m.pos.x,m.pos.y);
+      g.rotate(-m.rotate);
       g.noStroke();
       g.fill(toColor(c));
-      g.ellipse(0,0,size,size);
+      g.ellipse(0,0,m.size,m.size);
       g.noFill();
       g.stroke(toColor(c));
       g.strokeWeight(3);
-      g.arc(0,0,size*1.5,size*1.5,
-          radians(-5)-PI/2-selectedWeapon.diffuse/2,radians(5)-PI/2+selectedWeapon.diffuse/2);
+      g.arc(0,0,m.size*1.5,m.size*1.5,
+          radians(-5)-PI/2-m.selectedWeapon.diffuse/2,radians(5)-PI/2+m.selectedWeapon.diffuse/2);
       g.popMatrix();
     });
     setPrimitive(0.8,1,0,0);
@@ -87,7 +88,10 @@ class Myself extends Entity{
   
   void update(){
     super.update();
-    if(isDead)return;
+    if(isDead){
+      if(main.geometry.Objects.contains(this))main.geometry.Objects.remove(this);
+      return;
+    }
     main.geometry.Objects.add(this);
     while(exp>=nextLevel){
       exp-=nextLevel;

@@ -7,7 +7,6 @@ class Enemy extends Entity implements Cloneable{
   Weapon useWeapon=null;
   Weapon ShotWeapon=null;
   ItemTable dropTable;
-  boolean inScreen=true;
   boolean hit=false;
   double damage=0;
   float maxAddtionalSpeed=35;
@@ -21,14 +20,14 @@ class Enemy extends Entity implements Cloneable{
   
   Enemy(){//check
     setColor(new Color(0,0,255,64));
-    shape=((g,c)->{
+    shape=((g,c,e)->{
       g.pushMatrix();
-      g.translate(pos.x,pos.y);//pos->null(always)
-      g.rotate(-rotate);
+      g.translate(e.pos.x,e.pos.y);//pos->null(always)
+      g.rotate(-e.rotate);
       g.rectMode(CENTER);
       g.noStroke();
       g.fill(toColor(c));
-      g.rect(0,0,size*0.7071,size*0.7071);
+      g.rect(0,0,e.size*0.7071,e.size*0.7071);
       g.popMatrix();
     });
     init();
@@ -36,14 +35,14 @@ class Enemy extends Entity implements Cloneable{
   }
   
   Enemy(PVector pos){
-    shape=((g,c)->{
+    shape=((g,c,e)->{
       g.pushMatrix();
-      g.translate(pos.x,pos.y);
-      g.rotate(-rotate);
+      g.translate(e.pos.x,e.pos.y);
+      g.rotate(-e.rotate);
       g.rectMode(CENTER);
       g.noStroke();
       g.fill(toColor(c));
-      g.rect(0,0,size*0.7071,size*0.7071);
+      g.rect(0,0,e.size*0.7071,e.size*0.7071);
       g.popMatrix();
     });
     init();
@@ -74,7 +73,6 @@ class Enemy extends Entity implements Cloneable{
     AxisSize=new PVector(size,size);
     putAABB();
     if(inScreen){
-      main.geometry.addSync(threadNum,this);
       if(!nearEnemy.contains(this)){
         nearEnemy.add(this);
       }else{
@@ -100,7 +98,6 @@ class Enemy extends Entity implements Cloneable{
     }
     addVel(accelSpeed,false);
     pos.add(vel.copy().mult(vectorMagnification));
-    inScreen=-scroll.x<pos.x+size/2&&pos.x-size/2<-scroll.x+width&&-scroll.y<pos.y+size/2&&pos.y-size/2<-scroll.y+height;
   }
   
   private void addVel(float accel,boolean force){
@@ -131,6 +128,10 @@ class Enemy extends Entity implements Cloneable{
   Enemy setPos(PVector p){
     pos=p;
     return this;
+  }
+  
+  PVector getPos(){
+    return pos;
   }
   
   void Hit(Weapon w){
@@ -266,6 +267,7 @@ class DummyEnemy extends Enemy implements BlastResistant{
   void init(){
     setHP(20);
     setSize(28);
+    setMass(200);
     maxSpeed=0;
     rotateSpeed=0;
   }
@@ -313,7 +315,7 @@ class Plus extends Enemy{
     setSize(28);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(20,170,20));
+    setColor(new Color(20,170,20,64));
     addMultiplyer(EnergyBullet.class,1.1);
   }
   
@@ -329,7 +331,7 @@ class White extends Enemy{
     setSize(28);
     maxSpeed=0.8;
     rotateSpeed=4;
-    setColor(new Color(255,255,255));
+    setColor(new Color(255,255,255,64));
     addMultiplyer(ReflectorWeapon.class,1.2);
   }
   
@@ -346,7 +348,7 @@ class Large_R extends Enemy{
     rotateSpeed=3;
     setSize(42);
     setMass(50);
-    setColor(new Color(255,20,20));
+    setColor(new Color(255,20,20,64));
     addMultiplyer(LaserWeapon.class,1.2);
   }
   
@@ -363,7 +365,7 @@ class Large_C extends Enemy{
     rotateSpeed=0.5;
     setSize(35);
     setMass(20);
-    setColor(new Color(20,255,255));
+    setColor(new Color(20,255,255,64));
     addMultiplyer(MirrorWeapon.class,1.2);
   }
   
@@ -385,7 +387,7 @@ class ExplosionEnemy extends Enemy{
     rotateSpeed=3;
     setSize(24);
     setMass(9);
-    setColor(new Color(255,128,0));
+    setColor(new Color(255,128,0,64));
     addMultiplyer(GrenadeWeapon.class,1.2);
   }
   
@@ -404,7 +406,7 @@ class Micro_M extends Enemy{
     rotateSpeed=3;
     setSize(20);
     setMass(5);
-    setColor(new Color(255,0,255));
+    setColor(new Color(255,0,255,64));
     addMultiplyer(G_ShotWeapon.class,1.2);
   }
 }
@@ -418,7 +420,7 @@ class Slow_G extends Enemy{
     rotateSpeed=0.85;
     setSize(25);
     setMass(12);
-    setColor(new Color(160,160,160));
+    setColor(new Color(160,160,160,64));
     addMultiplyer(LightningWeapon.class,1.2);
   }
   
@@ -447,7 +449,7 @@ class M_Boss_Y extends Enemy implements BossEnemy{
     rotateSpeed=1.2;
     setSize(52);
     setMass(35);
-    setColor(new Color(255,255,10));
+    setColor(new Color(255,255,10,64));
     if(StageName.equals("Stage1")){
       boss=new HUDText("BOSS");
       dead=(e)->{
@@ -1107,10 +1109,6 @@ class EnemyShield extends M_Boss_Y implements BossEnemy{
       boss.startDisplay();
     }
     return this;
-  }
-  
-  private PVector getPos(){
-    return pos;
   }
   
   class EnemyShield_Child extends Enemy{
