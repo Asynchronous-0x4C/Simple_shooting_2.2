@@ -755,7 +755,7 @@ String getLanguageText(String s){
   textSize(20);
   textFont(font_20);
   text(Language.getString("ui_kill")+":"+killCount+"\n"+
-       "Time:"+floor(stage.time/60),width*0.5-150,height*0.2+100);
+       "Time:"+nf(floor(stage.time/3600),floor(stage.time/360000)>=1?0:2,0)+":"+floor((stage.time/60)%60),width*0.5-150,height*0.2+100);
   resultSet.display();
   resultSet.update();
   if(resultAnimation){
@@ -819,7 +819,7 @@ String getLanguageText(String s){
         //wall process
       }
     }
-    stage.addProcess(StageName,new TimeSchedule(2000,s->{s.endSchedule=true;}));
+    stage.addProcess(StageName,new TimeSchedule(Float.MAX_VALUE,s->{s.endSchedule=true;}));
   }
   main.process();
 }
@@ -1366,7 +1366,7 @@ class Entity implements Egent,Cloneable{
   float Mass=10;
   float e=0.5f;
   int threadNum=0;
-  boolean isDead=false;
+  volatile boolean isDead=false;
   boolean pDead=false;
   boolean inScreen=true;
 

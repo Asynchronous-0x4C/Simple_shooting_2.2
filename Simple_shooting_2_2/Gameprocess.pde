@@ -222,7 +222,11 @@ class GameProcess{
   }
 
   public void updateShape(){
-    geometry.clear();
+    if(!menu){
+      geometry.clear();
+    }else{
+      geometry.cleanUp();
+    }
     if(!pause){
       EntitySet=new HashSet(Entities);
       for(int i=0;i<nearEnemy.size();i++){
@@ -429,7 +433,7 @@ class GameProcess{
     text("LEVEL "+player.Level,190,52);
     textFont(font_15);
     textAlign(CENTER);
-    text("Time "+nf(floor(stage.time/3600),2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
+    text("Time "+nf(floor(stage.time/3600),floor(stage.time/360000)>=1?0:2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
     text(Language.getString("ui_kill")+":"+killCount,width-200,78);
     pop();
   }

@@ -1472,7 +1472,15 @@ class SatelliteBullet extends SubBullet{
   SatelliteBullet(SatelliteWeapon w,Satellite s,PVector target){
     super(w);
     pos=w.child.pos.copy();
-    c=new Color(0,255,150);
+    c=new Color(0,255,150,128);
+    emission=c;
+    shape=((g,c,e)->{
+      SubBullet b=(SubBullet)e;
+      g.noStroke();
+      g.fill(toColor(c));
+      g.triangle(e.pos.x+cos(e.rotate)*b.scale,e.pos.y+sin(e.rotate)*b.scale,e.pos.x+cos(e.rotate+TWO_PI/3)*b.scale,e.pos.y+sin(e.rotate+TWO_PI/3)*b.scale,e.pos.x+cos(e.rotate-TWO_PI/3)*b.scale,e.pos.y+sin(e.rotate-TWO_PI/3)*b.scale);
+    });
+    setPrimitive(0.8,1,0,4);
     satellite=s;
     t=target;
     vel=new PVector(random(2,4),0).rotate(-s.rad).mult(random(0,1)>0.5?1:-1);
@@ -1481,10 +1489,6 @@ class SatelliteBullet extends SubBullet{
   @Override
   void display(PGraphics g){
     if(Debug)displayAABB(g);
-    g.noFill();
-    g.stroke(toColor(c));
-    g.strokeWeight(1);
-    g.triangle(pos.x+cos(rotate)*scale,pos.y+sin(rotate)*scale,pos.x+cos(rotate+TWO_PI/3)*scale,pos.y+sin(rotate+TWO_PI/3)*scale,pos.x+cos(rotate-TWO_PI/3)*scale,pos.y+sin(rotate-TWO_PI/3)*scale);
   }
   
   @Override
@@ -1540,20 +1544,24 @@ class HexiteBullet extends SatelliteBullet{
   
   HexiteBullet(HexiteWeapon w,Hexite s,PVector target){
     super(w,s,target);
-    c=new Color(255,128,0);
+    c=new Color(255,128,0,128);
+    emission=c;
+    shape=(g,c,e)->{
+      SubBullet b=(SubBullet)e;
+      g.noStroke();
+      g.fill(toColor(c));
+      g.beginShape();
+      for(int i=0;i<6;i++){
+        g.vertex(e.pos.x+cos(e.rotate+TWO_PI*(i/6f))*b.scale,e.pos.y+sin(e.rotate+TWO_PI*(i/6f))*b.scale);
+      }
+      g.endShape(CLOSE);
+    };
+    setPrimitive(0.8,1,0,2);
   }
   
   @Override
   void display(PGraphics g){
     if(Debug)displayAABB(g);
-    g.noFill();
-    g.stroke(toColor(c));
-    g.strokeWeight(1);
-    g.beginShape();
-    for(int i=0;i<6;i++){
-      g.vertex(pos.x+cos(rotate+TWO_PI*(i/6f))*scale,pos.y+sin(rotate+TWO_PI*(i/6f))*scale);
-    }
-    g.endShape(CLOSE);
   }
 }
 

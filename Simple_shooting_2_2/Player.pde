@@ -279,6 +279,8 @@ class Myself extends Entity{
       MyselfCollision((Myself)e);
     }else if(e instanceof WallEntity){
       WallCollision((WallEntity)e);
+    }else if(e instanceof Exp){
+      ((Exp)e).Collision(this);
     }
   }
   
@@ -330,16 +332,18 @@ class Satellite extends Entity{
   }
   
   void init(){
-    setColor(new Color(0,255,150));
+    setColor(new Color(0,255,150,128));
     setSize(15);
+    shape=(g,c,e)->{
+      g.noStroke();
+      g.fill(toColor(c));
+      g.triangle(e.pos.x+cos(e.rotate)*e.size,e.pos.y+sin(e.rotate)*e.size,e.pos.x+cos(e.rotate+TWO_PI/3)*e.size,e.pos.y+sin(e.rotate+TWO_PI/3)*e.size,e.pos.x+cos(e.rotate-TWO_PI/3)*e.size,e.pos.y+sin(e.rotate-TWO_PI/3)*e.size);
+    };
+    setPrimitive(0.8,1,0,0);
   }
   
   @Override
   void display(PGraphics g){
-    g.noFill();
-    g.stroke(toColor(c));
-    g.strokeWeight(1);
-    g.triangle(pos.x+cos(rotate)*size,pos.y+sin(rotate)*size,pos.x+cos(rotate+TWO_PI/3)*size,pos.y+sin(rotate+TWO_PI/3)*size,pos.x+cos(rotate-TWO_PI/3)*size,pos.y+sin(rotate-TWO_PI/3)*size);
   }
   
   @Override
@@ -369,6 +373,7 @@ class Satellite extends Entity{
     vel.add(new PVector(0.01*(dist(pos,player.pos)-140),0).rotate(-rad-HALF_PI));
     vel.normalize().mult(max(1.7,dist(pos,player.pos)/70));
     pos.add(vel);
+    putAABB();
   }
   
   void shot(){
@@ -384,20 +389,22 @@ class Hexite extends Satellite{
   }
   
   void init(){
-    setColor(new Color(255,128,0));
+    setColor(new Color(255,128,0,128));
     setSize(15);
+    shape=(g,c,e)->{
+      g.noStroke();
+      g.fill(toColor(c));
+      g.beginShape();
+      for(int i=0;i<6;i++){
+        g.vertex(e.pos.x+cos(e.rotate+TWO_PI*(i/6f))*e.size,e.pos.y+sin(e.rotate+TWO_PI*(i/6f))*e.size);
+      }
+      g.endShape(CLOSE);
+    };
+    setPrimitive(0.8,1,0,0);
   }
   
   @Override
   void display(PGraphics g){
-    g.noFill();
-    g.stroke(toColor(c));
-    g.strokeWeight(1);
-    g.beginShape();
-    for(int i=0;i<6;i++){
-      g.vertex(pos.x+cos(rotate+TWO_PI*(i/6f))*size,pos.y+sin(rotate+TWO_PI*(i/6f))*size);
-    }
-    g.endShape(CLOSE);
   }
   
   void shot(){
