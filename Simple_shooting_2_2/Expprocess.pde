@@ -41,6 +41,7 @@ class Exp extends Entity{
   
   @Override
   void display(PGraphics g){
+    if(Debug)displayAABB(g);
   }
   
   void update(){

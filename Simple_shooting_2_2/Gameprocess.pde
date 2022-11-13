@@ -4,14 +4,13 @@ class GameProcess{
   ComponentSet HUDSet;
   ComponentSet UpgradeSet;
   ComponentSet PauseSet;
-  WallEntity[] wall=null;
+  ArrayList<WallEntity>wall;
   Geometry geometry;
   Color menuColor=new Color(230,230,230);
   PGraphicsOpenGL main;
   PGraphicsOpenGL light;
   PGraphicsOpenGL material;
   PShader renderer;
-  PVector FieldSize=null;
   float UItime=0;
   boolean gameOver=false;
   boolean animation=false;
@@ -31,15 +30,14 @@ class GameProcess{
   }
   
   public void setup(){
-    main=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
-    light=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
-    material=(PGraphicsOpenGL)createGraphics(1280,720,P2D);
+    main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
     renderer=loadShader(ShaderPath+"renderer.glsl");
     init();
   }
   
    public void init(){
-     FieldSize=null;
      geometry=new Geometry(this);
      EventSet=new HashMap<String,String>();
      HUDSet=new ComponentSet();
@@ -51,6 +49,7 @@ class GameProcess{
      stageLayer.addSubChild("root","HUD",HUDSet);
      initStatus();
      Entities=new ArrayList<Entity>();
+     wall=new ArrayList<>();
      nearEnemy.clear();
      player=new Myself();
      stage=new Stage();
@@ -349,7 +348,7 @@ class GameProcess{
     geometry.merge();
     main.beginDraw();
     main.beginDraw();
-    main.background(0,0);
+    main.background(ambient.getRed(),ambient.getGreen(),ambient.getBlue(),0);
     main.translate(scroll.x,scroll.y);
     main.noStroke();
     main.rectMode(CENTER);
@@ -556,16 +555,10 @@ class GameProcess{
     }
   }
   
-   public void setWall(){
-    if(FieldSize==null)return;
-    if(wall==null){
-      wall=new WallEntity[4];
-      wall[0]=new WallEntity(FieldSize.copy().mult(-0.5f),new PVector(FieldSize.x,0));
-      wall[1]=new WallEntity(new PVector(FieldSize.x*-0.5f,FieldSize.y*0.5f),new PVector(FieldSize.x,0));
-      wall[2]=new WallEntity(new PVector(FieldSize.x*0.5f,FieldSize.y*-0.5f),new PVector(0,FieldSize.y));
-      wall[3]=new WallEntity(FieldSize.copy().mult(-0.5f),new PVector(0,FieldSize.y));
-      Entities.addAll(Arrays.asList(wall));
-    }
+  void addWall(float x,float y,float dx,float dy){
+    WallEntity w=new WallEntity(new PVector(x,y),new PVector(dx,dy));
+    wall.add(w);
+    Entities.add(w);
   }
   
    public void commandProcess(java.util.List<Token>tokens){
@@ -792,7 +785,7 @@ class WallEntity extends Entity{
   @Override
   void update(){
     Center=new PVector(pos.x+dist.x*0.5,pos.y+dist.y*0.5);
-    AxisSize=new PVector(dist.x==0?1:dist.x,dist.y==0?1:dist.y);
+    AxisSize=new PVector(max(1,abs(dist.x)),max(1,abs(dist.y)));
     putAABB();
     super.update();
   }

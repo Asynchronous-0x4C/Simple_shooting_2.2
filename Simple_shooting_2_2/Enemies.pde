@@ -19,7 +19,7 @@ class Enemy extends Entity implements Cloneable{
   protected double HP=10d;
   
   Enemy(){//check
-    setColor(new Color(0,0,255,64));
+    setColor(new Color(0,0,255,128));
     shape=((g,c,e)->{
       g.pushMatrix();
       g.translate(e.pos.x,e.pos.y);//pos->null(always)
@@ -315,7 +315,7 @@ class Plus extends Enemy{
     setSize(28);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(20,170,20,64));
+    setColor(new Color(20,170,20,128));
     addMultiplyer(EnergyBullet.class,1.1);
   }
   
@@ -331,7 +331,7 @@ class White extends Enemy{
     setSize(28);
     maxSpeed=0.8;
     rotateSpeed=4;
-    setColor(new Color(255,255,255,64));
+    setColor(new Color(255,255,255,128));
     addMultiplyer(ReflectorWeapon.class,1.2);
   }
   
@@ -348,7 +348,7 @@ class Large_R extends Enemy{
     rotateSpeed=3;
     setSize(42);
     setMass(50);
-    setColor(new Color(255,20,20,64));
+    setColor(new Color(255,20,20,128));
     addMultiplyer(LaserWeapon.class,1.2);
   }
   
@@ -365,7 +365,7 @@ class Large_C extends Enemy{
     rotateSpeed=0.5;
     setSize(35);
     setMass(20);
-    setColor(new Color(20,255,255,64));
+    setColor(new Color(20,255,255,128));
     addMultiplyer(MirrorWeapon.class,1.2);
   }
   
@@ -387,7 +387,7 @@ class ExplosionEnemy extends Enemy{
     rotateSpeed=3;
     setSize(24);
     setMass(9);
-    setColor(new Color(255,128,0,64));
+    setColor(new Color(255,128,0,128));
     addMultiplyer(GrenadeWeapon.class,1.2);
   }
   
@@ -406,7 +406,7 @@ class Micro_M extends Enemy{
     rotateSpeed=3;
     setSize(20);
     setMass(5);
-    setColor(new Color(255,0,255,64));
+    setColor(new Color(255,0,255,128));
     addMultiplyer(G_ShotWeapon.class,1.2);
   }
 }
@@ -420,7 +420,7 @@ class Slow_G extends Enemy{
     rotateSpeed=0.85;
     setSize(25);
     setMass(12);
-    setColor(new Color(160,160,160,64));
+    setColor(new Color(160,160,160,128));
     addMultiplyer(LightningWeapon.class,1.2);
   }
   
@@ -449,7 +449,7 @@ class M_Boss_Y extends Enemy implements BossEnemy{
     rotateSpeed=1.2;
     setSize(52);
     setMass(35);
-    setColor(new Color(255,255,10,64));
+    setColor(new Color(255,255,10,128));
     if(StageName.equals("Stage1")){
       boss=new HUDText("BOSS");
       dead=(e)->{
@@ -542,7 +542,7 @@ class Plus_S extends Turret_S{
     maxSpeed=0.7;
     rotateSpeed=3;
     target=player;
-    setColor(new Color(20,170,20));
+    setColor(new Color(20,170,20,128));
     setExpMag(0.8);
     addMultiplyer(EnergyBullet.class,1.2);
   }
@@ -558,7 +558,7 @@ class Slime extends Enemy{
     setSize(18*max(1,scale*0.85));
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(20,255,0));
+    setColor(new Color(20,255,0,128));
     addMultiplyer(EnergyBullet.class,1.1);
   }
   
@@ -596,7 +596,7 @@ class Decay extends Enemy{
     setSize(9+3*(float)HP);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(240,240,255));
+    setColor(new Color(240,240,255,128));
     addMultiplyer(ReflectorWeapon.class,1.2);
   }
   
@@ -615,7 +615,7 @@ class White_S extends Turret_S{
     maxSpeed=0.7;
     rotateSpeed=3;
     target=player;
-    setColor(new Color(255,255,255));
+    setColor(new Color(255,255,255,128));
     setExpMag(0.8);
     addMultiplyer(ReflectorWeapon.class,1.2);
   }
@@ -640,7 +640,7 @@ class Division extends Enemy{
     setSize(10+2.5*(float)HP);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(255,0,20));
+    setColor(new Color(255,0,20,128));
     addMultiplyer(LaserWeapon.class,1.2);
   }
   
@@ -675,7 +675,7 @@ class Duplication extends Enemy{
     maxSpeed=3;
     rotateSpeed=0.5;
     setMass(20);
-    setColor(new Color(20,225,255));
+    setColor(new Color(20,225,255,128));
     addMultiplyer(MirrorWeapon.class,1.2);
   }
   
@@ -703,7 +703,7 @@ class ExplosionEnemy_Micro extends ExplosionEnemy{
     rotateSpeed=3;
     setSize(20);
     setMass(8);
-    setColor(new Color(255,128,0));
+    setColor(new Color(255,128,0,128));
     addMultiplyer(GrenadeWeapon.class,1.2);
   }
 }
@@ -717,7 +717,7 @@ class Micro_Y extends Enemy{
     rotateSpeed=3;
     setSize(16);
     setMass(4);
-    setColor(new Color(255,255,0));
+    setColor(new Color(255,255,0,128));
     addMultiplyer(G_ShotWeapon.class,1.2);
   }
 }
@@ -732,7 +732,7 @@ class Ghoast extends Enemy{
     setSize(25);
     setMass(12);
     setExpMag(1);
-    setColor(new Color(10,255,255));
+    setColor(new Color(10,255,255,128));
     addMultiplyer(LightningWeapon.class,1.2);
   }
   
@@ -761,7 +761,7 @@ class Formation extends M_Boss_Y implements BossEnemy{
     rotateSpeed=1.2;
     setSize(58);
     setMass(37);
-    setColor(new Color(150,95,255));
+    setColor(new Color(150,95,255,128));
     if(StageName.equals("Stage2")){
       boss=new HUDText("BOSS");
       dead=(e)->{
@@ -814,7 +814,7 @@ class Formation extends M_Boss_Y implements BossEnemy{
       rotateSpeed=1.2;
       setSize(50);
       setMass(37);
-      setColor(new Color(150,95,255));
+      setColor(new Color(150,95,255,128));
       addMultiplyer(G_ShotWeapon.class,1.2);
     }
     
@@ -835,7 +835,7 @@ class Poison extends Turret_S{
     rotateSpeed=3;
     setExpMag(0.85);
     setSize(28);
-    setColor(new Color(120,200,30));
+    setColor(new Color(120,200,30,128));
     addMultiplyer(AntiSkillWeapon.class,30);
     addMultiplyer(EnemyPoisonWeapon.class,30);
   }
@@ -857,7 +857,7 @@ class AntiPlasmaField extends Enemy{
     setSize(28);
     maxSpeed=1;
     rotateSpeed=3;
-    setColor(new Color(255,250,70));
+    setColor(new Color(255,250,70,128));
     addMultiplyer(PlasmaFieldWeapon.class,0);
   }
   
@@ -878,7 +878,7 @@ class Boost extends Enemy{
     setSize(22);
     maxSpeed=0.5;
     rotateSpeed=2;
-    setColor(new Color(255,220,220));
+    setColor(new Color(255,220,220,128));
   }
   
   void Process(){
@@ -911,7 +911,7 @@ class Teleport extends Enemy{
     setSize(24);
     maxSpeed=0.7;
     rotateSpeed=2;
-    setColor(new Color(235,110,255));
+    setColor(new Color(235,110,255,128));
     addMultiplyer(G_ShotWeapon.class,1.2);
   }
   
@@ -957,7 +957,7 @@ class Amplification extends Enemy{
     setSize(38-2*(float)HP);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(235,85,85));
+    setColor(new Color(235,85,85,128));
     addMultiplyer(LaserWeapon.class,1.2);
   }
   
@@ -976,7 +976,7 @@ class AntiBullet extends Enemy{
     setSize(28);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(85,150,235));
+    setColor(new Color(85,150,235,128));
   }
   
   @Override
@@ -1003,7 +1003,7 @@ class AntiExplosion extends Enemy implements BlastResistant{
     setSize(28);
     maxSpeed=0.7;
     rotateSpeed=3;
-    setColor(new Color(80,100,250));
+    setColor(new Color(80,100,250,128));
     addMultiplyer(FireWeapon.class,0.7);
   }
   
@@ -1020,7 +1020,7 @@ class AntiSkill extends Turret_S{
     rotateSpeed=3;
     setExpMag(1);
     setSize(28);
-    setColor(new Color(210,235,200));
+    setColor(new Color(210,235,200,128));
     addMultiplyer(AntiSkillWeapon.class,30);
     addMultiplyer(EnemyPoisonWeapon.class,30);
   }
@@ -1049,7 +1049,7 @@ class EnemyShield extends M_Boss_Y implements BossEnemy{
     rotateSpeed=1.2;
     setSize(62);
     setMass(37);
-    setColor(new Color(10,180,255));
+    setColor(new Color(10,180,255,128));
     if(StageName.equals("Stage3")){
       boss=new HUDText("BOSS");
       dead=(e)->{
@@ -1127,7 +1127,7 @@ class EnemyShield extends M_Boss_Y implements BossEnemy{
       rotateSpeed=0;
       setSize(25);
       setMass(20);
-      setColor(new Color(10,180,255));
+      setColor(new Color(10,180,255,128));
       addMultiplyer(SatelliteWeapon.class,1.2);
     }
     
@@ -1157,7 +1157,7 @@ class Bound extends Turret_S{
     setHP(8);
     setSize(28);
     setExpMag(1);
-    setColor(new Color(255,100,170));
+    setColor(new Color(255,100,170,128));
     maxSpeed=0.7;
     rotateSpeed=3;
     addMultiplyer(TurretWeapon.class,1.2);
@@ -1179,7 +1179,7 @@ class AntiBulletField extends Enemy{
     setHP(11);
     setSize(28);
     setExpMag(1);
-    setColor(new Color(105,60,255));
+    setColor(new Color(105,60,255,128));
     maxSpeed=0.7;
     rotateSpeed=3;
     addMultiplyer(TurretWeapon.class,1.2);
@@ -1204,7 +1204,7 @@ class CollisionEnemy extends Enemy{
     setHP(14);
     setSize(28);
     setExpMag(1);
-    setColor(new Color(30,255,180));
+    setColor(new Color(30,255,180,128));
     maxSpeed=1.1;
     rotateSpeed=3;
   }
@@ -1250,7 +1250,7 @@ class Decoy extends Enemy{
     setHP(25);
     setSize(23);
     setExpMag(1);
-    setColor(new Color(205,200,255));
+    setColor(new Color(205,200,255,128));
     maxSpeed=0;
     rotateSpeed=0;
   }
@@ -1279,7 +1279,7 @@ class Recover extends Enemy implements BossEnemy{
     rotateSpeed=2;
     setSize(40);
     setMass(35);
-    setColor(new Color(255,150,225));
+    setColor(new Color(255,150,225,128));
   }
   
   @Override
@@ -1351,7 +1351,7 @@ class AntiG_Shot extends Enemy{
     rotateSpeed=2;
     setSize(25);
     setMass(3);
-    setColor(new Color(0,255,0));
+    setColor(new Color(0,255,0,128));
   }
   
   @Override
@@ -1379,7 +1379,7 @@ class Barrier extends M_Boss_Y implements BossEnemy{
     rotateSpeed=2;
     setSize(53);
     setMass(53);
-    setColor(new Color(0,200,255));
+    setColor(new Color(0,200,255,128));
     edge=random(1500,1800);
     if(StageName.equals("Stage4")){
       boss=new HUDText("BOSS");
@@ -1473,7 +1473,7 @@ class GoldEnemy extends Enemy implements BossEnemy{
     rotateSpeed=2;
     setSize(25);
     setMass(30);
-    setColor(new Color(230,180,34));
+    setColor(new Color(230,180,34,128));
   }
   
   void Hit(Weapon w){
@@ -1519,7 +1519,7 @@ class SnipeEnemy extends Turret_S implements BossEnemy{
     rotateSpeed=3.5;
     setSize(40);
     setMass(30);
-    setColor(new Color(230,180,34));
+    setColor(new Color(230,180,34,128));
   }
   
   @Override
@@ -1588,7 +1588,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     rotateSpeed=2;
     setSize(54);
     setMass(35);
-    setColor(new Color(255,40,40));
+    setColor(new Color(255,40,40,128));
     if(StageName.equals("Stage5")){
       boss=new HUDText("BOSS");
       dead=(e)->{
@@ -1681,7 +1681,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     int num=0;
     
     SealedFrag(int i){
-      setColor(new Color(0,255,255));
+      setColor(new Color(0,255,255,128));
       num=i;
       init();
     }

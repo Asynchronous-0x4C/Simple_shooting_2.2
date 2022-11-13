@@ -455,7 +455,7 @@ class MirrorBullet extends SubBullet implements ExcludeGPGPU{
     LeftDown=new PVector(scale*4.875f,-scale*0.5f);
     RightDown=new PVector(scale*5.125f,-scale*0.5f);
     vector=new PVector(0,scale);
-    c=new Color(0,255,220,70);
+    c=new Color(0,255,220,128);
     shape=(g,c,e)->{
       MirrorBullet m=(MirrorBullet)e;
       g.noStroke();
@@ -542,7 +542,8 @@ class InfinityShieldBullet extends MirrorBullet{
   
   InfinityShieldBullet(SubWeapon w,int num,int sum,float offset){
     super(w,num,sum,offset);
-    c=new Color(230,0,100);
+    c=new Color(230,0,100,128);
+    setPrimitive(0.8,1,0,0);
   }
 }
 
@@ -658,7 +659,7 @@ class LaserBullet extends SubBullet implements ExcludeGPGPU{
       }
     }
     g.stroke(toColor(c),100);
-    if(vertex.size()>0&&!pause){
+    if(points.size()>0&&vertex.size()>0&&!pause){
       ArrayList<PVector>vertexArray=new ArrayList<PVector>(vertex.keySet());
       for(int i=0;i<=vertex.size();i++){
         switch(i){
@@ -1054,7 +1055,13 @@ class AntiBulletFieldBullet extends Bullet{
   AntiBulletFieldBullet(AntiBulletField p){
     super();
     parentEnemy=p;
-    c=new Color(60,115,255);
+    c=new Color(60,115,255,40);
+    shape=((g,c,e)->{
+      AntiBulletFieldBullet b=(AntiBulletFieldBullet)e;
+      g.fill(toColor(c));
+      g.ellipse(e.pos.x,e.pos.y,b.scale,b.scale);
+    });
+    setPrimitive(0.8,1,0,0);
     vel=new PVector(0,0);
     scale=80;
     isMine=false;

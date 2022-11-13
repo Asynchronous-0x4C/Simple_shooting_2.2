@@ -373,6 +373,8 @@ class Satellite extends Entity{
     vel.add(new PVector(0.01*(dist(pos,player.pos)-140),0).rotate(-rad-HALF_PI));
     vel.normalize().mult(max(1.7,dist(pos,player.pos)/70));
     pos.add(vel);
+    Center=pos;
+    AxisSize=new PVector(size*2,size*2);
     putAABB();
   }
   

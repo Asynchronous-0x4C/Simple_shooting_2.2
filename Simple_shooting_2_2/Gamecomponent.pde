@@ -875,6 +875,7 @@ class ItemList extends GameComponent{
       for(String s:Contents){
         if(i==selectedNumber){
           selectedItem=s;
+          sound.play("cursor_move");
           return;
         }
         i++;
@@ -907,6 +908,7 @@ class ItemList extends GameComponent{
   
   void Select(){
     s.itemSelect(selectedItem);
+    sound.play("enter");
   }
   
   void addListener(KeyEvent e){
@@ -1644,6 +1646,7 @@ class ComponentSet{
       }
       if(nowPressedKeyCode==ENTER|keyCode==subSelectButton){
         components.get(selectedIndex).executeEvent();
+        sound.play("enter");
       }
     }
   }
@@ -1656,6 +1659,7 @@ class ComponentSet{
     selectedIndex=selectedIndex>=components.size()-1?0:selectedIndex+1;
     if(!components.get(selectedIndex).canFocus)addSelect();
     components.get(selectedIndex).requestFocus();
+    sound.play("cursor_move");
   }
   
   void subSelect(){
@@ -1666,6 +1670,7 @@ class ComponentSet{
     selectedIndex=selectedIndex<=0?components.size()-1:selectedIndex-1;
     if(!components.get(selectedIndex).canFocus)subSelect();
     components.get(selectedIndex).requestFocus();
+    sound.play("cursor_move");
   }
   
   GameComponent getSelected(){
@@ -1935,7 +1940,10 @@ class ComponentSetLayer{
   }
   
   void keyProcess(){
-    if(keyPress&&returnKey.contains((float)nowPressedKeyCode))toParent();
+    if(keyPress&&returnKey.contains((float)nowPressedKeyCode)){
+      toParent();
+      sound.play("cursor_move");
+    }
   }
   
   void addReturnKey(int keycode){

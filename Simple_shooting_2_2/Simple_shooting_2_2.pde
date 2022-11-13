@@ -59,6 +59,7 @@ PShader Title_HighShader;
 java.util.List<GravityBullet>LensData=Collections.synchronizedList(new ArrayList<GravityBullet>());
 
 AtomicInteger killCount=new AtomicInteger(0);
+SoundProcess sound;
 GameProcess main;
 Stage stage;
 
@@ -198,6 +199,11 @@ void setup(){
       pscreen=new PVector(w.getWidth(), w.getHeight());
       g.width=width=w.getWidth();
       g.height=height=w.getHeight();
+      if(main!=null){
+        main.main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+        main.light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+        main.material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+      }
       ++resizedNumber;
       windowResized=true;
     }
@@ -214,6 +220,7 @@ void setup(){
     void keyReleased(com.jogamp.newt.event.KeyEvent e){
     }
   });
+  sound=new SoundProcess();
   mouseImage=loadImage(ImagePath+"mouse.png");
   font_15=createFont("SansSerif.plain",15);
   font_20=createFont("SansSerif.plain",20);
@@ -247,6 +254,7 @@ void setup(){
   if(doGPGPU)try{initMergeGPGPU();}catch(Exception e){e.printStackTrace();}
   LoadData();
   initThread();
+  exec.execute(sound);
 }
 
 public void draw(){
@@ -332,6 +340,7 @@ public void draw(){
   }else{
     frameRate(60);
   }
+  sound.loadData("menu");//println("loaded");
 }
   
  public void initStatus(){
@@ -388,7 +397,8 @@ String getLanguageText(String s){
   }
 }
 
- public void initMenu(){
+public void initMenu(){
+  sound.disable();
   starts=new ComponentSetLayer();
   NormalButton New=new NormalButton(Language.getString("start_game"));
   New.setBounds(width*0.5-60,height-80,120,30);
@@ -702,6 +712,7 @@ String getLanguageText(String s){
   }else{
     launched=true;
   }
+  sound.enable();
 }
 
  public void Load(){
@@ -785,7 +796,6 @@ String getLanguageText(String s){
  public void Field() {
   if (changeScene){
     main=new GameProcess();
-    main.FieldSize=null;
     stage.name=StageName;
     JSONArray data=loadJSONArray(StageConfPath+StageName+".json");
     for(int i=0;i<data.size();i++){
@@ -813,10 +823,11 @@ String getLanguageText(String s){
           }catch(ClassNotFoundException|NoSuchMethodException|InstantiationException|IllegalAccessException|InvocationTargetException g){g.printStackTrace();}
         }));
       }else if(config.getString("type").equals("setting")){
-        main.FieldSize=new PVector(config.getJSONArray("size").getIntArray()[0],config.getJSONArray("size").getIntArray()[1]);
-        main.setWall();
-      }else if(config.getString("type").equals("wall")){
-        //wall process
+        JSONArray walls=config.getJSONArray("wall");
+        for(int j=0;j<walls.size();j++){
+          JSONArray wall=walls.getJSONArray(j);
+          main.addWall(wall.getFloat(0),wall.getFloat(1),wall.getFloat(2),wall.getFloat(3));
+        }
       }
     }
     stage.addProcess(StageName,new TimeSchedule(Float.MAX_VALUE,s->{s.endSchedule=true;}));
@@ -852,6 +863,13 @@ String getLanguageText(String s){
   }
   pTime=System.currentTimeMillis();
   vectorMagnification=60f/(1000f/Times.get(Times.size()-1));
+}
+
+@Override
+public void exit(){
+  sound.end();
+  exec.shutdown();
+  super.exit();
 }
 
  public void updatePreValue() {
@@ -1453,7 +1471,7 @@ class Entity implements Egent,Cloneable{
   }
   
   public void Collision(Entity e){
-    if(!isHit(this.r_body.m_type,e.r_body.m_type))return;
+    //if(!isHit(this.r_body.m_type,e.r_body.m_type))return;
     
   }
   

@@ -1,5 +1,7 @@
 import java.util.concurrent.atomic.AtomicInteger;
 
+import processing.sound.*;
+
 class EntityProcess implements Callable<String>{
   long pTime=0;
   byte number;
@@ -125,6 +127,82 @@ class saveConfig implements Runnable{
       conf.setJSONArray("Stage",parseJSONArray(Arrays.toString(stageList.Contents.toArray(new String[0]))));
       saveJSONObject(conf,SavePath+"config.json");
     }
+  }
+}
+
+class SoundProcess implements Runnable{
+  private HashMap<String,SoundFile>sounds;
+  private HashMap<String,ArrayList<String>>soundData;
+  
+  private ArrayList<String>schedule;
+  
+  private boolean finishLoad=true;
+  private boolean loop=true;
+  private boolean enable=true;
+  
+  SoundProcess(){
+    sounds=new HashMap<>();
+    soundData=new HashMap<>();
+    schedule=new ArrayList<>();
+    JSONObject data=loadJSONObject(Windows?".\\data\\sound\\config.json":"../data/sound/config.json");
+    JSONArray list=data.getJSONArray("state");
+    for(int i=0;i<list.size();i++){
+      String name=list.getString(i);
+      soundData.put(name,new ArrayList<String>(Arrays.asList(data.getJSONArray(name).getStringArray())));
+    }
+  }
+  
+  void run(){
+    while(loop){
+      schedule.forEach(s->{
+        sounds.get(s).play();
+      });
+      schedule.clear();
+      try{
+        Thread.sleep(10);
+      }catch(InterruptedException e){
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  void loadData(String state){
+    finishLoad=false;
+    if(!soundData.containsKey(state)){
+      finishLoad=true;
+      return;
+    }
+    sounds.clear();
+    soundData.get(state).forEach(s->{
+      sounds.put(s.replace(".mp3","").replace(".wav","").replace(".ogg",""),new SoundFile(CopyApplet,Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
+    });
+    finishLoad=true;
+  }
+  
+  void play(String name){
+    if(sounds.containsKey(name)&&enable)schedule.add(name);
+  }
+  
+  void stop(){
+    sounds.forEach((k,v)->{
+      v.stop();
+    });
+  }
+  
+  boolean finishLoad(){
+    return finishLoad;
+  }
+  
+  void end(){
+    loop=false;
+  }
+  
+  void disable(){
+    enable=false;
+  }
+  
+  void enable(){
+    enable=true;
   }
 }
 
