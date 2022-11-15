@@ -173,24 +173,29 @@ class Myself extends Entity{
     float rad=0;
     float r=0;
     float i=0;
-    if(PressedKey.contains("w")||PressedKeyCode.contains(str(UP))){
-      ++i;
-    }
-    if(PressedKey.contains("s")||PressedKeyCode.contains(str(DOWN))){
-      --i;
-    }
-    if(PressedKey.contains("d")||PressedKeyCode.contains(str(RIGHT))){
-      ++r;
-    }
-    if(PressedKey.contains("a")||PressedKeyCode.contains(str(LEFT))){
-      --r;
+    if(useController){
+      i=abs(ctrl_sliders.get(2).getValue())>0.1?ctrl_sliders.get(2).getValue()*-1:0;
+      r=abs(ctrl_sliders.get(3).getValue())>0.1?ctrl_sliders.get(3).getValue():0;
+    }else{
+      if(PressedKey.contains("w")||PressedKeyCode.contains(str(UP))){
+        ++i;
+      }
+      if(PressedKey.contains("s")||PressedKeyCode.contains(str(DOWN))){
+        --i;
+      }
+      if(PressedKey.contains("d")||PressedKeyCode.contains(str(RIGHT))){
+        ++r;
+      }
+      if(PressedKey.contains("a")||PressedKeyCode.contains(str(LEFT))){
+        --r;
+      }
     }
     move=abs(i)+abs(r)!=0;
     rad=move?atan2(-r,i):rotate;
     if(Float.isNaN(rad))rad=0;
     float nRad=0<rotate?rad+TWO_PI:rad-TWO_PI;
     rad=abs(rotate-rad)<abs(rotate-nRad)?rad:nRad;
-    rad=sign(rad-rotate)*constrain(abs(rad-rotate),0,radians(rotateSpeed)*vectorMagnification);
+    rad=sign(rad-rotate)*constrain(abs(rad-rotate),0,radians(rotateSpeed*(useController?dist(0,0,ctrl_sliders.get(2).getValue(),ctrl_sliders.get(3).getValue()):1))*vectorMagnification);
     protate=rotate;
     rotate+=rad;
     rotate=rotate%TWO_PI;
@@ -201,7 +206,15 @@ class Myself extends Entity{
     if(Float.isNaN(Speed)){
       Speed=0;
     }
-    if(keyPressed&&move&&containsList(moveKeyCode,PressedKeyCode)){
+    if(useController){
+      float mag=dist(0,0,ctrl_sliders.get(2).getValue(),ctrl_sliders.get(3).getValue());
+      if(mag>0.1&&Speed/maxSpeed<mag){
+        addVel(accelSpeed*mag,false);
+      }else{
+        Speed=Speed>0?Speed-min(Speed,accelSpeed*2*vectorMagnification):
+        Speed-max(Speed,-accelSpeed*2*vectorMagnification);
+      }
+    }else if(keyPressed&&move&&containsList(moveKeyCode,PressedKeyCode)){
       addVel(accelSpeed,false);
     }else{
       Speed=Speed>0?Speed-min(Speed,accelSpeed*2*vectorMagnification):
@@ -238,10 +251,11 @@ class Myself extends Entity{
   }
   
   void shot(){
-    if(coolingTime>selectedWeapon.coolTime&&((mousePressed&&autoShot)||(mousePress&&!autoShot))&&mouseButton==LEFT
-      &&!selectedWeapon.empty){
+    if(coolingTime>selectedWeapon.coolTime&&((((mousePressed&&autoShot)||(mousePress&&!autoShot))&&mouseButton==LEFT)||(useController&&dist(0,0,ctrl_sliders.get(0).getValue(),ctrl_sliders.get(1).getValue())>0.1)
+      )&&!selectedWeapon.empty){
       selectedWeapon.shot();
       coolingTime=0;
+      //if(selectedWeapon instanceof PulseBullet)sound.play("shot_02");
     }else if(selectedWeapon.empty){
       selectedWeapon.reload();
     }

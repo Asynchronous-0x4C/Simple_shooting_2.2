@@ -12,6 +12,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.Map.Entry;
 
+import net.java.games.input.*;
+import org.gamecontrolplus.*;
+
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.newt.opengl.*;
 import com.jogamp.newt.event.*;
@@ -57,6 +60,16 @@ PShader backgroundShader;
 PShader titleShader;
 PShader Title_HighShader;
 java.util.List<GravityBullet>LensData=Collections.synchronizedList(new ArrayList<GravityBullet>());
+
+ControlIO control;
+ControlDevice controller;
+ArrayList<ControlSlider>ctrl_sliders=new ArrayList<>();
+ArrayList<ControlButton>ctrl_buttons=new ArrayList<>();
+ControlButton ctrl_hat;
+float pHat=0;
+boolean useController=false;
+boolean ctrl_button_press=false;
+boolean ctrl_hat_press=false;
 
 AtomicInteger killCount=new AtomicInteger(0);
 SoundProcess sound;
@@ -170,8 +183,10 @@ void settings(){
 }
 
 void setup(){
+  //change icon
   NewtFactory.setWindowIcons(new ClassResources(new String[]{ImagePath+"icon_16.png",ImagePath+"icon_48.png"},this.getClass().getClassLoader(),this.getClass()));
   hint(DISABLE_OPENGL_ERRORS);
+  //add windowevent
   ((GLWindow)surface.getNative()).addWindowListener(new com.jogamp.newt.event.WindowListener() {
     void windowDestroyed(com.jogamp.newt.event.WindowEvent e) {
     }
@@ -208,6 +223,7 @@ void setup(){
       windowResized=true;
     }
   });
+  //vsync setting
   GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
   GraphicsDevice device = ge.getDefaultScreenDevice();
   DisplayMode[] modes = device.getDisplayModes();
@@ -220,6 +236,32 @@ void setup(){
     void keyReleased(com.jogamp.newt.event.KeyEvent e){
     }
   });
+  //get controller
+  control = ControlIO.getInstance(this);
+  for(ControlDevice dev:control.getDevices()){
+    if(dev.getTypeName().equals(Controller.Type.GAMEPAD.toString())||
+       dev.getTypeName().equals(Controller.Type.STICK.toString())){
+      controller=dev;
+      break;
+    }  
+  }
+  if(controller!=null){
+    controller.open();
+    useController=true;
+    for(int i=0;i<controller.getNumberOfButtons();i++){
+      String className=controller.getButton(i).getClass().toString();
+      if(className.indexOf("Hat")>-1){
+        ctrl_hat=controller.getHat(i);
+      }else{
+        ctrl_buttons.add(controller.getButton(i));
+        controller.getButton(i).plug(this,"ctrl_button_pressed",ControlIO.ON_PRESS);
+      }
+    }
+    for(int i=0;i<controller.getNumberOfSliders();i++){
+      ctrl_sliders.add(controller.getSlider(i));
+    }
+  }
+  //start sound process
   sound=new SoundProcess();
   mouseImage=loadImage(ImagePath+"mouse.png");
   font_15=createFont("SansSerif.plain",15);
@@ -228,6 +270,7 @@ void setup(){
   font_50=createFont("SansSerif.plain",50);
   font_70=createFont("SansSerif.plain",70);
   textFont(font_15);
+  //load shader
   FXAAShader=loadShader(ShaderPath+"FXAA.glsl");
   colorInv=loadShader(ShaderPath+"ColorInv.glsl");
   Lighting=loadShader(ShaderPath+"Lighting.glsl");
@@ -236,6 +279,7 @@ void setup(){
   backgroundShader=loadShader(ShaderPath+"2Dnoise.glsl");
   titleShader=loadShader(ShaderPath+"Title.glsl");
   Title_HighShader=loadShader(ShaderPath+"Title_high.glsl");
+  //setting title
   preg=createGraphics(width,height,P2D);
   titleLight=new float[40];
   for(int i=0;i<20;i++){
@@ -247,6 +291,7 @@ void setup(){
     titleLightSpeed[i]=random(2.5,3.5);
   }
   blendMode(ADD);
+  //initalize
   scroll=new PVector(0, 0);
   pTime=System.currentTimeMillis();
   localMouse=unProject(mouseX, mouseY);
@@ -257,7 +302,7 @@ void setup(){
   exec.execute(sound);
 }
 
-public void draw(){
+public void draw(){println(ctrl_buttons.get(2).getValue());
   if(frameCount==2){
     noLoop();
     ((GLWindow)surface.getNative()).setFullscreen(fullscreen);
@@ -340,7 +385,6 @@ public void draw(){
   }else{
     frameRate(60);
   }
-  sound.loadData("menu");//println("loaded");
 }
   
  public void initStatus(){
@@ -399,6 +443,7 @@ String getLanguageText(String s){
 
 public void initMenu(){
   sound.disable();
+  sound.loadData("menu");
   starts=new ComponentSetLayer();
   NormalButton New=new NormalButton(Language.getString("start_game"));
   New.setBounds(width*0.5-60,height-80,120,30);
@@ -877,6 +922,9 @@ public void exit(){
   windowResized=false;
   keyRelease=false;
   keyPress=false;
+  ctrl_button_press=false;
+  ctrl_hat_press=(ctrl_hat.getValue()>0&&pHat==0);
+  if(useController)pHat=ctrl_hat.getValue();
   mouseWheel=false;
   mouseWheelCount=0;
   pmousePress=mousePressed;
@@ -1341,7 +1389,11 @@ public boolean isParent(Entity e,Entity f){
   return true;
 }
 
- public void keyPressed(){
+public void ctrl_button_pressed(){
+  ctrl_button_press=true;
+}
+
+public void keyPressed(){
   keyPressTime=0;
   keyPress=true;
   ModifierKey=keyCode;

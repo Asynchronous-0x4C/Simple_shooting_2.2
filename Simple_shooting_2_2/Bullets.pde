@@ -21,7 +21,7 @@ class Bullet extends Entity{
   }
   
   Bullet(Myself m){
-    rotate=-atan2(m.pos.x-localMouse.x,m.pos.y-localMouse.y)-PI/2+random(-m.diffuse/2,m.diffuse/2);
+    rotate=useController?-atan2(ctrl_sliders.get(1).getValue(),ctrl_sliders.get(0).getValue())+PI/2+random(-m.diffuse/2,m.diffuse/2):-atan2(m.pos.x-localMouse.x,m.pos.y-localMouse.y)-PI/2+random(-m.diffuse/2,m.diffuse/2);
     speed=m.selectedWeapon.speed;
     c=cloneColor(m.selectedWeapon.bulletColor);
     parentColor=cloneColor(m.selectedWeapon.bulletColor);
@@ -41,7 +41,7 @@ class Bullet extends Entity{
     int n=m.selectedWeapon.bulletNumber;
     float r=n>1?radians(20)/(n/2):0;
     float rad=n>1?r*(n-1):0;
-    rotate=-atan2(m.pos.x-localMouse.x,m.pos.y-localMouse.y)-PI/2+random(-m.diffuse/2,m.diffuse/2)+(n>1?+rad/2-num*r:0);
+    rotate=useController?-atan2(ctrl_sliders.get(1).getValue(),ctrl_sliders.get(0).getValue())+PI/2+random(-m.diffuse/2,m.diffuse/2):-atan2(m.pos.x-localMouse.x,m.pos.y-localMouse.y)-PI/2+random(-m.diffuse/2,m.diffuse/2)+(n>1?+rad/2-num*r:0);
     speed=m.selectedWeapon.speed;
     c=cloneColor(m.selectedWeapon.bulletColor);
     parentColor=cloneColor(m.selectedWeapon.bulletColor);

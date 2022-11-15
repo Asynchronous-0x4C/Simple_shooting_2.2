@@ -37,59 +37,62 @@ class GameProcess{
     init();
   }
   
-   public void init(){
-     geometry=new Geometry(this);
-     EventSet=new HashMap<String,String>();
-     HUDSet=new ComponentSet();
-     UpgradeSet=new ComponentSet();
-     PauseSet=new ComponentSet();
-     initPause();
-     stageLayer=new ComponentSetLayer();
-     stageLayer.addLayer("root",UpgradeSet);
-     stageLayer.addSubChild("root","HUD",HUDSet);
-     initStatus();
-     Entities=new ArrayList<Entity>();
-     wall=new ArrayList<>();
-     nearEnemy.clear();
-     player=new Myself();
-     stage=new Stage();
-     StageFlag.clear();
-     pause=false;
-     killCount.set(0);
-     sumLevel=0;
-     addtionalProjectile=0;
-     addtionalScale=1;
-     addtionalPower=1;
-     addtionalSpeed=1;
-     addtionalDuration=1;
-     reductionCoolTime=1;
-     playerTable.clear();
-     Arrays.asList(conf.getJSONArray("Weapons").getStringArray()).forEach(s->{
-       playerTable.addTable(masterTable.get(s),masterTable.get(s).getWeight());
-     });
-     playerTable.getAll().forEach(i->{
-       i.reset();
-       playerTable.addTable(i,i.weight);
-     });
-     player.subWeapons.clear();
-     switch(StageName){
-       case "Tutorial":initTutorial();break;
-       case "Stage1":player.subWeapons.add(masterTable.get("Laser").getWeapon());
-                     player.subWeapons.add(masterTable.get("PlasmaField").getWeapon());
-                     break;
-       case "Stage2":player.subWeapons.add(masterTable.get("Mirror").getWeapon());
-                     player.subWeapons.add(masterTable.get("Reflector").getWeapon());
-                     break;
-       case "Stage3":player.subWeapons.add(masterTable.get("Turret").getWeapon());
-                     player.subWeapons.add(masterTable.get("Absorption").getWeapon());
-                     break;
-       case "Stage4":player.subWeapons.add(masterTable.get("G_Shot").getWeapon());
-                     player.subWeapons.add(masterTable.get("Grenade").getWeapon());
-                     break;
-       case "Stage5":player.subWeapons.add(masterTable.get("Fire").getWeapon());
-                     player.subWeapons.add(masterTable.get("Lightning").getWeapon());
-                     break;
-     }
+  public void init(){
+    sound.disable();
+    sound.loadData("game");
+    geometry=new Geometry(this);
+    EventSet=new HashMap<String,String>();
+    HUDSet=new ComponentSet();
+    UpgradeSet=new ComponentSet();
+    PauseSet=new ComponentSet();
+    initPause();
+    stageLayer=new ComponentSetLayer();
+    stageLayer.addLayer("root",UpgradeSet);
+    stageLayer.addSubChild("root","HUD",HUDSet);
+    initStatus();
+    Entities=new ArrayList<Entity>();
+    wall=new ArrayList<>();
+    nearEnemy.clear();
+    player=new Myself();
+    stage=new Stage();
+    StageFlag.clear();
+    pause=false;
+    killCount.set(0);
+    sumLevel=0;
+    addtionalProjectile=0;
+    addtionalScale=1;
+    addtionalPower=1;
+    addtionalSpeed=1;
+    addtionalDuration=1;
+    reductionCoolTime=1;
+    playerTable.clear();
+    Arrays.asList(conf.getJSONArray("Weapons").getStringArray()).forEach(s->{
+      playerTable.addTable(masterTable.get(s),masterTable.get(s).getWeight());
+    });
+    playerTable.getAll().forEach(i->{
+      i.reset();
+      playerTable.addTable(i,i.weight);
+    });
+    player.subWeapons.clear();
+    switch(StageName){
+      case "Tutorial":initTutorial();break;
+      case "Stage1":player.subWeapons.add(masterTable.get("Laser").getWeapon());
+                    player.subWeapons.add(masterTable.get("PlasmaField").getWeapon());
+                    break;
+      case "Stage2":player.subWeapons.add(masterTable.get("Mirror").getWeapon());
+                    player.subWeapons.add(masterTable.get("Reflector").getWeapon());
+                    break;
+      case "Stage3":player.subWeapons.add(masterTable.get("Turret").getWeapon());
+                    player.subWeapons.add(masterTable.get("Absorption").getWeapon());
+                    break;
+      case "Stage4":player.subWeapons.add(masterTable.get("G_Shot").getWeapon());
+                    player.subWeapons.add(masterTable.get("Grenade").getWeapon());
+                    break;
+      case "Stage5":player.subWeapons.add(masterTable.get("Fire").getWeapon());
+                    player.subWeapons.add(masterTable.get("Lightning").getWeapon());
+                    break;
+    }
+    sound.enable();
   }
   
   private void initPause(){

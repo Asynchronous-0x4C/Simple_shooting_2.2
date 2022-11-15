@@ -837,35 +837,69 @@ class ItemList extends GameComponent{
   }
   
   void keyProcess(){
-    if(keyPress){
-      e.keyEvent(nowPressedKeyCode);
-      switch(nowPressedKeyCode){
-        case UP:subSelect();changeEvent();break;
-        case DOWN:addSelect();changeEvent();break;
+    if(useController){
+      if(ctrl_button_press||ctrl_hat_press){
+        if(ctrl_hat_press){
+          switch((int)ctrl_hat.getValue()){
+            case 2:subSelect();changeEvent();break;
+            case 6:addSelect();changeEvent();break;
+          }
+          scroll();
+        }
+        if((ctrl_button_press&&ctrl_buttons.get(2).pressed())||(ctrl_hat_press&&ctrl_hat.getValue()==4))Select();
       }
-      scroll();
-      if(nowPressedKeyCode==ENTER|nowPressedKeyCode==RIGHT)Select();
-    }
-    if(!moving&keyPressed&(nowPressedKeyCode==UP|nowPressedKeyCode==DOWN)){
-      keyTime+=vectorMagnification;
-    }
-    if(!moving&keyTime>=30){
-      moving=true;
-      keyTime=0;
-    }
-    if(moving){
-      keyTime+=vectorMagnification;
-    }
-    if(moving&keyTime>=15){
-      switch(nowPressedKeyCode){
-        case UP:subSelect();break;
-        case DOWN:addSelect();break;
+      if(!moving&&ctrl_hat.pressed()&&(ctrl_hat.getValue()==2||ctrl_hat.getValue()==6)){
+        keyTime+=vectorMagnification;
       }
-      scroll();
-    }
-    if(!keyPressed){
-      moving=false;
-      keyTime=0;
+      if(!moving&keyTime>=30){
+        moving=true;
+        keyTime=0;
+      }
+      if(moving){
+        keyTime+=vectorMagnification;
+      }
+      if(moving&keyTime>=15){
+        switch((int)ctrl_hat.getValue()){
+          case 2:subSelect();break;
+          case 6:addSelect();break;
+        }
+        scroll();
+      }
+      if(!ctrl_hat.pressed()){
+        moving=false;
+        keyTime=0;
+      }
+    }else{
+      if(keyPress){
+        e.keyEvent(nowPressedKeyCode);
+        switch(nowPressedKeyCode){
+          case UP:subSelect();changeEvent();break;
+          case DOWN:addSelect();changeEvent();break;
+        }
+        scroll();
+        if(nowPressedKeyCode==ENTER|nowPressedKeyCode==RIGHT)Select();
+      }
+      if(!moving&keyPressed&(nowPressedKeyCode==UP|nowPressedKeyCode==DOWN)){
+        keyTime+=vectorMagnification;
+      }
+      if(!moving&keyTime>=30){
+        moving=true;
+        keyTime=0;
+      }
+      if(moving){
+        keyTime+=vectorMagnification;
+      }
+      if(moving&keyTime>=15){
+        switch(nowPressedKeyCode){
+          case UP:subSelect();break;
+          case DOWN:addSelect();break;
+        }
+        scroll();
+      }
+      if(!keyPressed){
+        moving=false;
+        keyTime=0;
+      }
     }
   }
   
@@ -1630,7 +1664,26 @@ class ComponentSet{
   }
   
   void keyEvent(){
-    if(selectedIndex!=-1&&keyPress&!components.get(selectedIndex).keyMove){
+    if(useController&&selectedIndex!=-1&&!components.get(selectedIndex).keyMove){
+      if(ctrl_hat_press){
+        if(type==0|type==1){
+          switch((int)ctrl_hat.getValue()){
+            case 6:if(type==0)addSelect();else subSelect();break;
+            case 2:if(type==0)subSelect();else addSelect();break;
+          }
+        }else if(type==2|type==3){
+          switch((int)ctrl_hat.getValue()){
+            case 4:break;
+            case 8:break;
+          }
+        }
+      }
+      if(ctrl_button_press&&ctrl_buttons.get(2).pressed()){
+        components.get(selectedIndex).executeEvent();
+        sound.play("enter");
+      }
+    }
+    if(selectedIndex!=-1&&keyPress&&!components.get(selectedIndex).keyMove){
       if(!onMouse()){
         if(type==0|type==1){
           switch(nowPressedKeyCode){
@@ -1940,7 +1993,10 @@ class ComponentSetLayer{
   }
   
   void keyProcess(){
-    if(keyPress&&returnKey.contains((float)nowPressedKeyCode)){
+    if(useController&&ctrl_button_press&&ctrl_buttons.get(1).pressed()){
+      toParent();
+      sound.play("cursor_move");
+    }else if(keyPress&&returnKey.contains((float)nowPressedKeyCode)){
       toParent();
       sound.play("cursor_move");
     }

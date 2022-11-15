@@ -1,5 +1,5 @@
 {
   "state":["menu","game"],
   "menu":["enter.mp3","cursor_move.mp3"],
-  "game":[]
+  "game":["shot_02.wav"]
 }

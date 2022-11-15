@@ -155,6 +155,7 @@ class SoundProcess implements Runnable{
   void run(){
     while(loop){
       schedule.forEach(s->{
+        if(sounds.get(s).isPlaying())sounds.get(s).stop();
         sounds.get(s).play();
       });
       schedule.clear();
