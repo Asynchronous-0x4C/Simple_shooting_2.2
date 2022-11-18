@@ -134,7 +134,7 @@ class SoundProcess implements Runnable{
   private HashMap<String,SoundFile>sounds;
   private HashMap<String,ArrayList<String>>soundData;
   
-  private ArrayList<String>schedule;
+  private HashSet<String>schedule;
   
   private boolean finishLoad=true;
   private boolean loop=true;
@@ -143,7 +143,7 @@ class SoundProcess implements Runnable{
   SoundProcess(){
     sounds=new HashMap<>();
     soundData=new HashMap<>();
-    schedule=new ArrayList<>();
+    schedule=new HashSet<>();
     JSONObject data=loadJSONObject(Windows?".\\data\\sound\\config.json":"../data/sound/config.json");
     JSONArray list=data.getJSONArray("state");
     for(int i=0;i<list.size();i++){
@@ -155,12 +155,11 @@ class SoundProcess implements Runnable{
   void run(){
     while(loop){
       schedule.forEach(s->{
-        if(sounds.get(s).isPlaying())sounds.get(s).stop();
         sounds.get(s).play();
       });
       schedule.clear();
       try{
-        Thread.sleep(10);
+        Thread.sleep(8);
       }catch(InterruptedException e){
         e.printStackTrace();
       }

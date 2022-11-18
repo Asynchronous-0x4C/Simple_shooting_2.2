@@ -255,7 +255,8 @@ class Myself extends Entity{
       )&&!selectedWeapon.empty){
       selectedWeapon.shot();
       coolingTime=0;
-      //if(selectedWeapon instanceof PulseBullet)sound.play("shot_02");
+      if(selectedWeapon instanceof EnergyBullet)sound.play("shot_01");
+      else if(selectedWeapon instanceof PulseBullet)sound.play("shot_02");
     }else if(selectedWeapon.empty){
       selectedWeapon.reload();
     }
@@ -263,8 +264,14 @@ class Myself extends Entity{
   }
   
   void keyEvent(){
-    if(keyPress&&ModifierKey==TAB){
-      changeWeapon();
+    if(useController){
+      if(ctrl_button_press&&controllerBinding.getControllerState("change")){
+        changeWeapon();
+      }
+    }else{
+      if(keyPress&&ModifierKey==TAB){
+        changeWeapon();
+      }
     }
   }
   

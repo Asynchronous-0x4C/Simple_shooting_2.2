@@ -144,6 +144,7 @@ class Enemy extends Entity implements Cloneable{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(damage*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -156,6 +157,7 @@ class Enemy extends Entity implements Cloneable{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(damage*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -165,6 +167,7 @@ class Enemy extends Entity implements Cloneable{
   
   void Down(){
     killCount.incrementAndGet();
+    sound.play("break");
     isDead=true;
     NextEntities.add(new Particle(this,(int)(size*3),1));
     NextEntities.add(new Exp(this,ceil(((float)maxHP)*expMag)));
@@ -275,6 +278,7 @@ class DummyEnemy extends Enemy implements BlastResistant{
   @Override
   void Down(){
     killCount.incrementAndGet();
+    sound.play("break");
     isDead=true;
     NextEntities.add(new Particle(this,(int)(size*3),1));
     NextEntities.add(exp);
@@ -1486,6 +1490,7 @@ class GoldEnemy extends Enemy implements BossEnemy{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1499,6 +1504,7 @@ class GoldEnemy extends Enemy implements BossEnemy{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1655,6 +1661,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1669,6 +1676,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
       return;
     }else if(damage>0){
       NextEntities.add(new Particle(this,(int)(size*0.5),1));
+      if(damage>0.8)sound.play("hit");
     }
   }
   

@@ -840,15 +840,15 @@ class ItemList extends GameComponent{
     if(useController){
       if(ctrl_button_press||ctrl_hat_press){
         if(ctrl_hat_press){
-          switch((int)ctrl_hat.getValue()){
-            case 2:subSelect();changeEvent();break;
-            case 6:addSelect();changeEvent();break;
+          switch(controllerBinding.getHatState()){
+            case "up":subSelect();changeEvent();break;
+            case "down":addSelect();changeEvent();break;
           }
           scroll();
         }
-        if((ctrl_button_press&&ctrl_buttons.get(2).pressed())||(ctrl_hat_press&&ctrl_hat.getValue()==4))Select();
+        if((ctrl_button_press&&controllerBinding.getControllerState("enter"))||(ctrl_hat_press&&controllerBinding.getControllerState("right")))Select();
       }
-      if(!moving&&ctrl_hat.pressed()&&(ctrl_hat.getValue()==2||ctrl_hat.getValue()==6)){
+      if(!moving&&ctrl_hat.pressed()&&(controllerBinding.getControllerState("up")||controllerBinding.getControllerState("down"))){
         keyTime+=vectorMagnification;
       }
       if(!moving&keyTime>=30){
@@ -859,9 +859,9 @@ class ItemList extends GameComponent{
         keyTime+=vectorMagnification;
       }
       if(moving&keyTime>=15){
-        switch((int)ctrl_hat.getValue()){
-          case 2:subSelect();break;
-          case 6:addSelect();break;
+        switch(controllerBinding.getHatState()){
+          case "up":subSelect();break;
+          case "down":addSelect();break;
         }
         scroll();
       }
@@ -1667,18 +1667,18 @@ class ComponentSet{
     if(useController&&selectedIndex!=-1&&!components.get(selectedIndex).keyMove){
       if(ctrl_hat_press){
         if(type==0|type==1){
-          switch((int)ctrl_hat.getValue()){
-            case 6:if(type==0)addSelect();else subSelect();break;
-            case 2:if(type==0)subSelect();else addSelect();break;
+          switch(controllerBinding.getHatState()){
+            case "down":if(type==0)addSelect();else subSelect();break;
+            case "up":if(type==0)subSelect();else addSelect();break;
           }
         }else if(type==2|type==3){
-          switch((int)ctrl_hat.getValue()){
-            case 4:break;
-            case 8:break;
+          switch(controllerBinding.getHatState()){
+            case "right":break;
+            case "left":break;
           }
         }
       }
-      if(ctrl_button_press&&ctrl_buttons.get(2).pressed()){
+      if(ctrl_button_press&&controllerBinding.getControllerState("enter")){
         components.get(selectedIndex).executeEvent();
         sound.play("enter");
       }
@@ -1993,7 +1993,7 @@ class ComponentSetLayer{
   }
   
   void keyProcess(){
-    if(useController&&ctrl_button_press&&ctrl_buttons.get(1).pressed()){
+    if(useController&&ctrl_button_press&&controllerBinding.getControllerState("back")){
       toParent();
       sound.play("cursor_move");
     }else if(keyPress&&returnKey.contains((float)nowPressedKeyCode)){

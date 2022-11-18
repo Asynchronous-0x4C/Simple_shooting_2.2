@@ -440,10 +440,17 @@ class GameProcess{
     pop();
   }
   
-   public void keyProcess(){
-    if(keyPress&&keyCode==CONTROL){
-      menu=!menu;
-      if(!upgrade)pause=menu;
+  public void keyProcess(){
+    if(useController){
+      if(ctrl_button_press&&controllerBinding.getControllerState("menu")){
+        menu=!menu;
+        if(!upgrade)pause=menu;
+      }
+    }else{
+      if(keyPress&&keyCode==CONTROL){
+        menu=!menu;
+        if(!upgrade)pause=menu;
+      }
     }
   }
   
@@ -752,6 +759,99 @@ class Command{
   
   boolean isDead(){
     return isDead;
+  }
+}
+
+class KeyBinding{
+  private HashMap<Integer,String>list;
+  private int type=0;
+  
+  public final int KEY=0;
+  public final int CONTROLLER=1;
+  
+  KeyBinding(){
+    initKey();
+    type=0;
+  }
+  
+  KeyBinding(int type){
+    switch(type){
+      case 0:initKey();break;
+      case 1:initController();break;
+    }
+    this.type=type;
+  }
+  
+  void initKey(){
+    list=new HashMap<>();
+    list.put((int)ENTER,"enter");
+    list.put((int)SHIFT,"back");
+    list.put((int)CONTROL,"menu");
+    list.put((int)TAB,"change");
+    list.put((int)'w',"up");
+    list.put((int)'a',"left");
+    list.put((int)'s',"right");
+    list.put((int)'d',"down");
+  }
+  
+  void initController(){
+    list=new HashMap<>();
+    list.put(2,"enter");
+    list.put(1,"back");
+    list.put(3,"menu");
+    list.put(0,"change");
+    list.put(-2,"up");
+    list.put(-8,"left");
+    list.put(-4,"right");
+    list.put(-6,"down");
+  }
+  
+  ArrayList<String> getState(){
+    ArrayList<String>ret=new ArrayList<>();
+    if(type==1){
+      for(int i:list.keySet()){
+        if(ctrl_buttons.get(i).pressed())ret.add(list.get(i));
+      }
+      if(list.containsKey(-(int)ctrl_hat.getValue()))ret.add(list.get(-(int)ctrl_hat.getValue()));
+    }else{
+      for(String s:PressedKeyCode){
+        ret.add(list.get(Integer.parseInt(s)));
+      }
+    }
+    return ret;
+  }
+  
+  String getKeyState(int i){
+    return list.get(i);
+  }
+  
+  String getButtonState(int i){
+    return list.get(i);
+  }
+  
+  boolean getControllerState(String s){
+    int binding=getButtonBinding(s);
+    if(type==1&&list.containsValue(s)){
+      if(binding>0){
+        return ctrl_buttons.get(binding).pressed();
+      }else{
+        return ctrl_hat.getValue()==-binding;
+      }
+    }
+    return false;
+  }
+  
+  int getButtonBinding(String s){
+    for(int i:list.keySet()){
+      if(s.equals(list.get(i))){
+        return i;
+      }
+    }
+    return -1024;
+  }
+  
+  String getHatState(){
+    return list.get(-(int)ctrl_hat.getValue());
   }
 }
 
