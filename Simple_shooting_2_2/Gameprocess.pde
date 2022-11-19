@@ -841,6 +841,14 @@ class KeyBinding{
     return false;
   }
   
+  boolean getKeyInputState(String s){
+    int binding=getButtonBinding(s);
+    if(type==0&&list.containsValue(s)){
+      return PressedKeyCode.contains(str(binding));
+    }
+    return false;
+  }
+  
   int getButtonBinding(String s){
     for(int i:list.keySet()){
       if(s.equals(list.get(i))){
@@ -853,6 +861,10 @@ class KeyBinding{
   String getHatState(){
     return list.get(-(int)ctrl_hat.getValue());
   }
+}
+
+boolean getInputState(String s){
+  return (keyPress&&keyboardBinding.getKeyInputState(s))||((ctrl_button_press||ctrl_hat_press)&&controllerBinding.getControllerState(s));
 }
 
 class WallEntity extends Entity{

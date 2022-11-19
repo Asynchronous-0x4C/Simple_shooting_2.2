@@ -33,6 +33,7 @@ class Bullet extends Entity{
     }catch(Exception e){}
     isMine=true;
     setAABB();
+    setMass(2);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -53,6 +54,7 @@ class Bullet extends Entity{
     }catch(Exception e){}
     isMine=true;
     setAABB();
+    setMass(2);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -77,6 +79,7 @@ class Bullet extends Entity{
     vel=new PVector(cos(rotate)*speed,sin(rotate)*speed);
     duration=w.duration;
     setAABB();
+    setMass(2);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -146,7 +149,7 @@ class Bullet extends Entity{
   @Override
   void EnemyHit(Enemy e,boolean p){
     e.Hit(parent);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     isDead=true;
     e.BulletHit(this,false);
   }
@@ -510,7 +513,7 @@ class MirrorBullet extends SubBullet implements ExcludeGPGPU{
   @Override
   void EnemyHit(Enemy e,boolean b){
     nextHitEnemy.add(e);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     if(!HitEnemy.contains(e)){
       e.Hit(this.parent);
     }
@@ -746,7 +749,7 @@ class LaserBullet extends SubBullet implements ExcludeGPGPU{
     nextHitEnemy.add(e);
     if(!HitEnemy.contains(e)){
       e.Hit(parent);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     }
   }
   
@@ -781,6 +784,7 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
   
   LightningBullet(SubWeapon w,int num,int sum,int offset){
     super(w);
+    setMass(0);
     pos=player.pos;
     if(nearEnemy.size()>num){
       rad=-atan2(pos,nearEnemy.get(num).pos)+HALF_PI+radians(random(-10.10f));
@@ -829,7 +833,7 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
     nextHitEnemy.add(e);
     if(!HitEnemy.contains(e)){
       e.Hit(parent);
-      e.vel.add(vel.copy().mult(1/e.Mass));
+      e.vel.add(vel.copy().mult(Mass/e.Mass));
     }
   }
   
@@ -863,7 +867,7 @@ class ReflectorBullet extends SubBullet{
     if(!HitEnemy.contains(e)){
       reflectFromNormal(atan2(pos,e.pos));
       e.Hit(parent);
-      e.vel.add(vel.copy().mult(1/e.Mass));
+      e.vel.add(vel.copy().mult(Mass/e.Mass));
       age-=30;
     }
   }
@@ -903,7 +907,7 @@ class ShadowReflectorBullet extends ReflectorBullet{
         NextEntities.add(sr);
       }
       e.Hit(parent);
-      e.vel.add(vel.copy().mult(1/e.Mass));
+      e.vel.add(vel.copy().mult(Mass/e.Mass));
       age-=30;
     }
   }
@@ -971,7 +975,7 @@ class ThroughBullet extends Bullet{
     nextHitEnemy.add(e);
     if(HitEnemy.contains(e))return;
     e.Hit(parent);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     if(e instanceof Turret_S)((Turret_S)e).target=parent.parent;
   }
   
@@ -1000,7 +1004,7 @@ class EnemyPoisonBullet extends ThroughBullet{
     nextHitEnemy.add(e);
     if(HitEnemy.contains(e))return;
     e.Hit(parent);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     if(e instanceof Turret_S)((Turret_S)e).target=parent.parent;
   }
   
@@ -1530,7 +1534,7 @@ class SatelliteBullet extends SubBullet{
   @Override
   void EnemyHit(Enemy e,boolean b){
     e.Hit(parent);
-    e.vel.add(vel.copy().mult(1/e.Mass));
+    e.vel.add(vel.copy().mult(Mass/e.Mass));
     isDead=true;
   }
   

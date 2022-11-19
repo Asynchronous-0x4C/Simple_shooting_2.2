@@ -79,6 +79,11 @@ class Enemy extends Entity implements Cloneable{
         playerDistsq=sqDist(player.pos,pos);
       }
     }
+    if(!(HP<=0)&&damage>0){
+      NextEntities.add(new Particle(this,(int)(damage*0.5),1));
+      if(damage>0.8)sound.play("hit");
+      damage=0;
+    }
   }
   
   void Rotate(){
@@ -142,9 +147,6 @@ class Enemy extends Entity implements Cloneable{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(damage*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -155,9 +157,6 @@ class Enemy extends Entity implements Cloneable{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(damage*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -987,7 +986,7 @@ class AntiBullet extends Enemy{
   void BulletCollision(Bullet b){
     if(CircleCollision(pos,size,b.pos,b.vel)){
       b.isDead=true;
-      vel.add(b.vel.copy().mult(1/Mass));
+      vel.add(b.vel.copy().mult(b.Mass/Mass));
       if(b instanceof GravityBullet||b instanceof GrenadeBullet||b instanceof FireBullet||b instanceof PlasmaFieldBullet)Hit(b.parent);
     }
   }
@@ -1456,7 +1455,7 @@ class Barrier extends M_Boss_Y implements BossEnemy{
   @Override
   void BulletHit(Bullet b,boolean p){
     if(b instanceof GravityBullet){
-      vel.add(b.vel.copy().mult(1/Mass));
+      vel.add(b.vel.copy().mult(b.Mass/Mass));
     }
   }
   
@@ -1488,9 +1487,6 @@ class GoldEnemy extends Enemy implements BossEnemy{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1502,9 +1498,6 @@ class GoldEnemy extends Enemy implements BossEnemy{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1659,9 +1652,6 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   
@@ -1674,9 +1664,6 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     if(!isDead&&HP<=0){
       Down();
       return;
-    }else if(damage>0){
-      NextEntities.add(new Particle(this,(int)(size*0.5),1));
-      if(damage>0.8)sound.play("hit");
     }
   }
   

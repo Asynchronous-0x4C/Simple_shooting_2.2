@@ -858,7 +858,7 @@ class ItemList extends GameComponent{
       if(moving){
         keyTime+=vectorMagnification;
       }
-      if(moving&keyTime>=15){
+      if(moving&keyTime>=20){
         switch(controllerBinding.getHatState()){
           case "up":subSelect();break;
           case "down":addSelect();break;
@@ -889,7 +889,7 @@ class ItemList extends GameComponent{
       if(moving){
         keyTime+=vectorMagnification;
       }
-      if(moving&keyTime>=15){
+      if(moving&keyTime>=20){
         switch(nowPressedKeyCode){
           case UP:subSelect();break;
           case DOWN:addSelect();break;
