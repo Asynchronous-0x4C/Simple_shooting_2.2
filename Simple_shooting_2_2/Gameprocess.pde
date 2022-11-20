@@ -800,10 +800,10 @@ class KeyBinding{
     list.put(1,"back");
     list.put(3,"menu");
     list.put(0,"change");
-    list.put(-2,"up");
-    list.put(-8,"left");
-    list.put(-4,"right");
-    list.put(-6,"down");
+    list.put(-3,"up");
+    list.put(-9,"left");
+    list.put(-5,"right");
+    list.put(-7,"down");
   }
   
   ArrayList<String> getState(){
@@ -812,7 +812,7 @@ class KeyBinding{
       for(int i:list.keySet()){
         if(ctrl_buttons.get(i).pressed())ret.add(list.get(i));
       }
-      if(list.containsKey(-(int)ctrl_hat.getValue()))ret.add(list.get(-(int)ctrl_hat.getValue()));
+      if(list.containsKey(-(int)ctrl_hat.getValue()-1))ret.add(list.get(-(int)ctrl_hat.getValue()-1));
     }else{
       for(String s:PressedKeyCode){
         ret.add(list.get(Integer.parseInt(s)));
@@ -832,10 +832,10 @@ class KeyBinding{
   boolean getControllerState(String s){
     int binding=getButtonBinding(s);
     if(type==1&&list.containsValue(s)){
-      if(binding>0){
+      if(binding>=0){
         return ctrl_buttons.get(binding).pressed();
       }else{
-        return ctrl_hat.getValue()==-binding;
+        return ctrl_hat.getValue()==-binding-1;
       }
     }
     return false;
@@ -858,13 +858,40 @@ class KeyBinding{
     return -1024;
   }
   
+  String getButtonState(){
+    if(type==0)return null;
+    for(int i=0;i<ctrl_buttons.size();i++){
+      if(ctrl_buttons.get(i).pressed()&&list.get(i)!=null)return list.get(i);
+    }
+    return null;
+  }
+  
   String getHatState(){
-    return list.get(-(int)ctrl_hat.getValue());
+    return type==1?list.get(-(int)ctrl_hat.getValue()-1):null;
+  }
+  
+  String getKeyState(){
+    return type==0?(keyPressed?list.get(nowPressedKeyCode):null):null;
   }
 }
 
 boolean getInputState(String s){
   return (keyPress&&keyboardBinding.getKeyInputState(s))||((ctrl_button_press||ctrl_hat_press)&&controllerBinding.getControllerState(s));
+}
+
+boolean isInput(){
+  return keyPress||ctrl_button_press||ctrl_hat_press;
+}
+
+String getInputState(){
+  if(useController){
+    String btn=controllerBinding.getButtonState();
+    if(btn!=null)return btn;
+    String hat=controllerBinding.getHatState();
+    if(hat!=null)return hat;
+  }
+  String Key=keyboardBinding.getKeyState();
+  return Key==null?"":Key;
 }
 
 class WallEntity extends Entity{

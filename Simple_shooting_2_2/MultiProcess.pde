@@ -134,7 +134,14 @@ class SoundProcess implements Runnable{
   private HashMap<String,SoundFile>sounds;
   private HashMap<String,ArrayList<String>>soundData;
   
-  private HashSet<String>schedule;
+  private SoundFile snd_BGM;
+  
+  private Sound mainSound;
+  
+  private ArrayList<String>schedule;
+  
+  private float vol_SE=1;
+  private float vol_BGM=1;
   
   private boolean finishLoad=true;
   private boolean loop=true;
@@ -143,7 +150,8 @@ class SoundProcess implements Runnable{
   SoundProcess(){
     sounds=new HashMap<>();
     soundData=new HashMap<>();
-    schedule=new HashSet<>();
+    schedule=new ArrayList<>();
+    mainSound=new Sound(CopyApplet);
     JSONObject data=loadJSONObject(Windows?".\\data\\sound\\config.json":"../data/sound/config.json");
     JSONArray list=data.getJSONArray("state");
     for(int i=0;i<list.size();i++){
@@ -154,10 +162,17 @@ class SoundProcess implements Runnable{
   
   void run(){
     while(loop){
+      ArrayList<String>played=new ArrayList<>();
+      ArrayList<String>next=new ArrayList<>();
       schedule.forEach(s->{
-        sounds.get(s).play();
+        if(played.contains(s)){
+          next.add(s);
+        }else{
+          sounds.get(s).play();
+          played.add(s);
+        }
       });
-      schedule.clear();
+      schedule=next;
       try{
         Thread.sleep(8);
       }catch(InterruptedException e){
@@ -176,11 +191,27 @@ class SoundProcess implements Runnable{
     soundData.get(state).forEach(s->{
       sounds.put(s.replace(".mp3","").replace(".wav","").replace(".ogg",""),new SoundFile(CopyApplet,Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
     });
+    applySEVolume();
     finishLoad=true;
   }
   
+  void setSEVolume(float v){
+    vol_SE=constrain(v,0,1);
+    applySEVolume();
+  }
+  
+  void applySEVolume(){
+    sounds.forEach((k,v)->{
+      v.amp(vol_SE);
+    });
+  }
+  
+  void setBGMVolume(float v){
+    vol_BGM=constrain(v,0,1);
+  }
+  
   void play(String name){
-    if(sounds.containsKey(name)&&enable)schedule.add(name);
+    if(sounds.containsKey(name)&&enable)sounds.get(name).play();
   }
   
   void stop(){

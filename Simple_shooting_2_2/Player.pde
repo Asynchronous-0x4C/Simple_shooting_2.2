@@ -264,14 +264,8 @@ class Myself extends Entity{
   }
   
   void keyEvent(){
-    if(useController){
-      if(ctrl_button_press&&controllerBinding.getControllerState("change")){
-        changeWeapon();
-      }
-    }else{
-      if(keyPress&&ModifierKey==TAB){
-        changeWeapon();
-      }
+    if(getInputState("change")){
+      changeWeapon();
     }
   }
   
