@@ -164,15 +164,17 @@ class SoundProcess implements Runnable{
     while(loop){
       ArrayList<String>played=new ArrayList<>();
       ArrayList<String>next=new ArrayList<>();
-      schedule.forEach(s->{
-        if(played.contains(s)){
-          next.add(s);
-        }else{
-          sounds.get(s).play();
-          played.add(s);
-        }
-      });
-      schedule=next;
+      synchronized(schedule){
+        schedule.forEach(s->{
+          if(played.contains(s)){
+            next.add(s);
+          }else{
+            sounds.get(s).play();
+            played.add(s);
+          }
+        });
+        schedule=next;
+      }
       try{
         Thread.sleep(8);
       }catch(InterruptedException e){
@@ -211,7 +213,10 @@ class SoundProcess implements Runnable{
   }
   
   void play(String name){
-    if(sounds.containsKey(name)&&enable)sounds.get(name).play();
+    if(sounds.containsKey(name)&&enable)
+    synchronized(schedule){
+      schedule.add(name);
+    }
   }
   
   void stop(){

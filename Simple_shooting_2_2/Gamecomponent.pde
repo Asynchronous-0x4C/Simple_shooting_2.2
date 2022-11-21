@@ -839,8 +839,8 @@ class ItemList extends GameComponent{
   void keyProcess(){
     if(isInput()){
       switch(getInputState()){
-        case "up":subSelect();changeEvent();break;
-        case "down":addSelect();changeEvent();break;
+        case "up":subSelect();break;
+        case "down":addSelect();break;
       }
       scroll();
     }
@@ -1586,7 +1586,7 @@ class ComponentSet{
       }
       if(c.focus)selectedIndex=components.indexOf(c);
     }
-    keyEvent();
+    if(Focus)keyEvent();
     if(pSelectedIndex!=selectedIndex){
       if(pSelectedIndex!=-1&&!(pSelectedIndex>=components.size()))components.get(pSelectedIndex).Fe.lostFocus();
       if(selectedIndex!=-1&&!(selectedIndex>=components.size()))components.get(selectedIndex).Fe.getFocus();

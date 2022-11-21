@@ -784,26 +784,48 @@ class KeyBinding{
   
   void initKey(){
     list=new HashMap<>();
-    list.put((int)ENTER,"enter");
-    list.put((int)SHIFT,"back");
-    list.put((int)CONTROL,"menu");
-    list.put((int)TAB,"change");
-    list.put((int)'w',"up");
-    list.put((int)'a',"left");
-    list.put((int)'s',"right");
-    list.put((int)'d',"down");
+    addBinding((int)ENTER,"enter");
+    addBinding((int)SHIFT,"back");
+    addBinding((int)CONTROL,"menu");
+    addBinding((int)TAB,"change");
+    addBinding((int)UP,"up");
+    addBinding((int)LEFT,"left");
+    addBinding((int)RIGHT,"right");
+    addBinding((int)DOWN,"down");
   }
   
   void initController(){
     list=new HashMap<>();
-    list.put(2,"enter");
-    list.put(1,"back");
-    list.put(3,"menu");
-    list.put(0,"change");
-    list.put(-3,"up");
-    list.put(-9,"left");
-    list.put(-5,"right");
-    list.put(-7,"down");
+    addBinding(2,"enter");
+    addBinding(1,"back");
+    addBinding(3,"menu");
+    addBinding(0,"change");
+    addBinding(-3,"up");
+    addBinding(-9,"left");
+    addBinding(-5,"right");
+    addBinding(-7,"down");
+  }
+  
+  void addBinding(int i,String s){
+    list.put(i,s);
+  }
+  
+  void replaceBinding(int i,String s,int next){
+    list.remove(i);
+    list.put(next,s);
+  }
+  
+  HashMap<Integer,String> getDefaultBindings(){
+    return getBindings("enter","back","menu","change");
+  }
+  
+  HashMap<Integer,String> getBindings(String... name){
+    HashSet<String>names=new HashSet<>(Arrays.asList(name));
+    HashMap<Integer,String>ret=new HashMap<>();
+    list.forEach((k,v)->{
+      if(names.contains(v))ret.put(k,v);
+    });
+    return ret;
   }
   
   ArrayList<String> getState(){
@@ -876,7 +898,7 @@ class KeyBinding{
 }
 
 boolean getInputState(String s){
-  return (keyPress&&keyboardBinding.getKeyInputState(s))||((ctrl_button_press||ctrl_hat_press)&&controllerBinding.getControllerState(s));
+  return (keyPress&&keyboardBinding.getKeyInputState(s))||(useController&&(ctrl_button_press||ctrl_hat_press)&&controllerBinding.getControllerState(s));
 }
 
 boolean isInput(){

@@ -23,6 +23,8 @@ import com.jogamp.newt.*;
 
 import static com.jogamp.common.util.IOUtil.ClassResources;
 
+import static com.jogamp.newt.event.KeyEvent.*;
+
 Simple_shooting_2_2 CopyApplet=this;
 
 Myself player;
