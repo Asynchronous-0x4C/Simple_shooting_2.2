@@ -110,6 +110,7 @@ ArrayList<String>StageFlag=new ArrayList<String>();
 ArrayList<Entity>Entities=new ArrayList<Entity>(50);
 ArrayList<Entity>NextEntities=new ArrayList<Entity>();
 HashSet<Entity>EntitySet=new HashSet<Entity>();
+HashSet<String>ArchiveEntity=new HashSet<>();
 ArrayList<ArrayList<Entity>>HeapEntity=new ArrayList<ArrayList<Entity>>();
 HashSet<String>PressedKeyCode=new HashSet<String>();
 HashSet<String>PressedKey=new HashSet<String>();
@@ -395,6 +396,9 @@ public void draw(){
   }else{
     frameRate(60);
   }
+  sound.setBGMVolume(conf.getInt("BGM")/10f);
+  sound.setSEVolume(conf.getInt("SE")/10f);
+  ArchiveEntity=new HashSet<>(Arrays.asList(conf.getJSONArray("Enemy").getStringArray()));
 }
   
  public void initStatus(){
@@ -651,10 +655,11 @@ public void initMenu(){
        public void lostFocus(){}
     });
       //--
-      IntegerSlider SE=new IntegerSlider(10,10);
+      IntegerSlider SE=new IntegerSlider(10,sound.getSEVolume());
       SE.setBounds(400,240,170,25);
       SE.addChangeListener(()->{
-        sound.setSEVolume(SE.getValue()/10);
+        sound.setSEVolume(SE.getValue()/10f);
+        conf.setInt("SE",(int)SE.getValue());
       });
       SE.addFocusListener(new FocusEvent(){
          public void getFocus(){
@@ -969,6 +974,7 @@ public void initMenu(){
 
 @Override
 public void exit(){
+  exec.submit(()->saveJSONObject(conf,SavePath+"config.json"));
   sound.end();
   exec.shutdown();
   super.exit();

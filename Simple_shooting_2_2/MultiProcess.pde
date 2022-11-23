@@ -31,6 +31,8 @@ class EntityProcess implements Callable<String>{
       }
       if(!e.isDead){
         next.add(e);
+      }else if(e instanceof Enemy&&!ArchiveEntity.contains(e.getClass().getName())){
+        ArchiveEntity.add(e.getClass().getName());
       }
     }
     EntityTime=(System.nanoTime()-pTime)/1000000f;
@@ -125,6 +127,7 @@ class saveConfig implements Runnable{
   void run(){
     if(!StageFlag.contains("Game_Over")){
       conf.setJSONArray("Stage",parseJSONArray(Arrays.toString(stageList.Contents.toArray(new String[0]))));
+      conf.setJSONArray("Enemy",parseJSONArray(Arrays.toString(ArchiveEntity.toArray(new String[0]))));
       saveJSONObject(conf,SavePath+"config.json");
     }
   }
@@ -209,8 +212,16 @@ class SoundProcess implements Runnable{
     });
   }
   
+  int getSEVolume(){
+    return round(vol_SE*10);
+  }
+  
   void setBGMVolume(float v){
     vol_BGM=constrain(v,0,1);
+  }
+  
+  int getBGMVolume(){
+    return round(vol_BGM*10);
   }
   
   void play(String name){
