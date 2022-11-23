@@ -56,7 +56,7 @@ class GameComponent{
   }
   
   void setNonSelectBorderColor(Color c){
-    border=new Color(c.getRed(),c.getGreen(),c.getBlue());
+    nonSelectBorder=c;
   }
   
   void display(){
@@ -92,11 +92,6 @@ class GameComponent{
   }
   
   void back(){}
-  
-  @Override
-  String toString(){
-    return "[pos:"+pos+",dist:"+dist+"]";
-  }
 }
 
 class Canvas extends GameComponent{
@@ -119,6 +114,84 @@ class Canvas extends GameComponent{
   @Override
   void display(){
     content.display(pg);
+  }
+}
+
+class IntegerSlider extends GameComponent{
+  private ChangeEvent ce;
+  private float[]state;
+  private boolean selected=false;
+  private float fragSize;
+  private int value=0;
+  
+  IntegerSlider(int num,int val){
+    value=val;
+    state=new float[num];
+    for(int i=0;i<num;i++){
+      if(i<val)state[i]=1;
+    }
+    setBorderColor(menuRightColor);
+    setNonSelectBorderColor(new Color(150,150,150));
+    setBackground(new Color(150,150,150));
+    setSelectBackground(new Color(50,50,50));
+  }
+  
+  @Override
+  GameComponent setBounds(float x,float y,float dx,float dy){
+    GameComponent ret=super.setBounds(x,y,dx,dy);
+    fragSize=(dist.x-5f-4f*state.length)/(float)state.length;
+    return ret;
+  }
+  
+  @Override
+  void display(){
+    strokeWeight(1);
+    stroke(toColor(focus?border:nonSelectBorder));
+    line(pos.x,pos.y,pos.x,pos.y+dist.y);
+    line(pos.x+dist.x,pos.y,pos.x+dist.x,pos.y+dist.y);//state==1->rect state==0->circle
+    rectMode(CENTER);
+    noStroke();
+    for(int i=0;i<state.length;i++){
+      fill(toColor(mixColor(background,selectbackground,state[i]*(selected?1:0.5))));
+      rect(pos.x+(4+fragSize)*(i+1)-fragSize/2,pos.y+dist.y/2,mix(min(fragSize/2,dist.y/2),fragSize,state[i]),mix(min(fragSize/2,dist.y/2),dist.y,state[i]),mix(min(fragSize/4,dist.y/4),fragSize/4,state[i]));
+    }
+  }
+  
+  @Override
+  void update(){
+    keyProcess();
+    for(int i=0;i<state.length;i++){
+      if(i<value){
+        state[i]=min(state[i]+vectorMagnification*0.1,1);
+      }else{
+        state[i]=max(state[i]-vectorMagnification*0.1,0);
+      }
+    }
+  }
+  
+  void keyProcess(){
+    if(getInputState("enter")){
+      selected=!selected;
+      if(selected)sound.play("enter");
+      keyMove=selected;
+    }
+    if(selected&&getInputState("left")){
+      value=constrain(value-1,0,state.length);
+      ce.changeEvent();
+      sound.play("cursor_move");
+    }else if(selected&&getInputState("right")){
+      value=constrain(value+1,0,state.length);
+      ce.changeEvent();
+      sound.play("cursor_move");
+    }
+  }
+  
+  float getValue(){
+    return value;
+  }
+  
+  void addChangeListener(ChangeEvent e){
+    ce=e;
   }
 }
 

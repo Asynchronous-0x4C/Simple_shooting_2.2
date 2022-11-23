@@ -1,5 +1,6 @@
 {
   "HighQuality": true,
+  "SE": 10,
   "Language": "ja_jp",
   "Weapons": [
     "G_Shot",
@@ -23,6 +24,17 @@
     "cooltime"
   ],
   "vsync": true,
+  "Enemy": [
+    "Simple_shooting_2_2$ExplosionEnemy",
+    "Simple_shooting_2_2$White",
+    "Simple_shooting_2_2$Large_R",
+    "Simple_shooting_2_2$Large_C",
+    "Simple_shooting_2_2$M_Boss_Y",
+    "Simple_shooting_2_2$Micro_M",
+    "Simple_shooting_2_2$Slow_G",
+    "Simple_shooting_2_2$Turret",
+    "Simple_shooting_2_2$Plus"
+  ],
   "FPS": true,
   "clear": true,
   "Stage": [
@@ -33,6 +45,7 @@
     "Stage4",
     "Stage5"
   ],
+  "BGM": 10,
   "Fullscreen": false,
   "GPGPU": false
 }

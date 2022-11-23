@@ -309,6 +309,10 @@ void setup(){
 }
 
 public void draw(){
+  if(useController){
+    mouseX=-1;
+    mouseY=-1;
+  }
   if(frameCount==2){
     noLoop();
     ((GLWindow)surface.getNative()).setFullscreen(fullscreen);
@@ -635,6 +639,44 @@ public void initMenu(){
          public void lostFocus(){}
       });
       //--
+    MenuButton Sounds=new MenuButton(Language.getString("sound"));
+    Sounds.addListener(()->{
+      starts.toChild("sndMenu");
+    });
+    Sounds.addFocusListener(new FocusEvent(){
+       public void getFocus(){
+        confBox.setText(Language.getString("ex_sound"));
+      }
+      
+       public void lostFocus(){}
+    });
+      //--
+      IntegerSlider SE=new IntegerSlider(10,10);
+      SE.setBounds(400,240,170,25);
+      SE.addChangeListener(()->{
+        sound.setSEVolume(SE.getValue()/10);
+      });
+      SE.addFocusListener(new FocusEvent(){
+         public void getFocus(){
+          confBox.setText(Language.getString("ex_SE"));
+        }
+        
+         public void lostFocus(){}
+      });
+      //--
+    MenuButton Keys=new MenuButton(Language.getString("key"));
+    Keys.addListener(()->{
+      starts.toChild("keyMenu");
+    });
+    Keys.addFocusListener(new FocusEvent(){
+       public void getFocus(){
+        confBox.setText(Language.getString("ex_key"));
+      }
+      
+       public void lostFocus(){}
+    });
+      //--
+      //--
     MenuButton Lang=new MenuButton(Language.getString("language"));
     Lang.addListener(()->{
       starts.toChild("Language");
@@ -677,6 +719,13 @@ public void initMenu(){
        public void lostFocus(){}
     });
   //---
+  MenuButton Archive=new MenuButton(Language.getString("Archive"));
+  Archive.addListener(()->{
+    starts.toChild("archive");
+  });
+    //--
+    
+    //--
   MenuButton operationEx=new MenuButton(Language.getString("operation_ex"));
   operationEx.addListener(()->{
     starts.toChild("operation");
@@ -751,10 +800,12 @@ public void initMenu(){
   //--
   starts.setSubChildDisplayType(1);
   starts.addLayer("root",titleSet);
-  starts.addChild("root","main",toSet(mainLayout,Select,Config,operationEx,credit));
+  starts.addChild("root","main",toSet(mainLayout,Select,Config,Archive,operationEx,credit));
   starts.addSubChild("main","stage",toSet(stageList));
-  starts.addSubChild("main","confMenu",toSet(confLayout,AbsMag,Display,Lang,exit),toSet(confBox));
+  starts.addSubChild("main","confMenu",toSet(confLayout,AbsMag,Display,Sounds,Keys,Lang,exit),toSet(confBox));
   starts.addSubChild("confMenu","dispMenu",toSet(dispLayout,Colorinv,dispFPS,Quality,vsy,fullsc),toSet(confBox));
+  starts.addSubChild("confMenu","sndMenu",toSet(SE),toSet(confBox));
+  starts.addSubChild("confMenu","keyMenu",toSet(),toSet(confBox));
   starts.addSubChild("confMenu","Language",toSet(LangList));
   starts.addChild("main","operation",toSet(back_op,op_canvas));
   starts.addChild("main","credit",toSet(back_cr,cr_canvas));
@@ -1380,6 +1431,10 @@ public int getMax(Color c){
 
 public float mix(float x,float y,float a){
   return x*(1-a)+y*a;
+}
+
+public Color mixColor(Color x,Color y,float a){
+  return new Color((int)mix(x.getRed(),y.getRed(),a),(int)mix(x.getGreen(),y.getGreen(),a),(int)mix(x.getBlue(),y.getBlue(),a),(int)mix(x.getAlpha(),y.getAlpha(),a));
 }
 
 public boolean isParent(Entity e,Entity f){

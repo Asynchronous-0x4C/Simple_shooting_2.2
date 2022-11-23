@@ -145,7 +145,8 @@ class SoundProcess implements Runnable{
   
   private boolean finishLoad=true;
   private boolean loop=true;
-  private boolean enable=true;
+  private boolean enableBGM=true;
+  private boolean enableSE=true;
   
   SoundProcess(){
     sounds=new HashMap<>();
@@ -199,7 +200,7 @@ class SoundProcess implements Runnable{
   
   void setSEVolume(float v){
     vol_SE=constrain(v,0,1);
-    applySEVolume();
+    if(vol_SE>0)applySEVolume();
   }
   
   void applySEVolume(){
@@ -213,7 +214,7 @@ class SoundProcess implements Runnable{
   }
   
   void play(String name){
-    if(sounds.containsKey(name)&&enable)
+    if(sounds.containsKey(name)&&enableSE&&vol_SE>0)
     synchronized(schedule){
       schedule.add(name);
     }
@@ -234,11 +235,27 @@ class SoundProcess implements Runnable{
   }
   
   void disable(){
-    enable=false;
+    enableBGM=enableSE=false;
+  }
+  
+  void disableBGM(){
+    enableBGM=false;
+  }
+  
+  void disableSE(){
+    enableSE=false;
   }
   
   void enable(){
-    enable=true;
+    enableBGM=enableSE=true;
+  }
+  
+  void enableBGM(){
+    enableBGM=true;
+  }
+  
+  void enableSE(){
+    enableSE=true;
   }
 }
 
