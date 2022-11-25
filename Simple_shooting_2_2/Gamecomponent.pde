@@ -90,8 +90,6 @@ class GameComponent{
   void addWindowResizeEvent(WindowResizeEvent e){
     wre=e;
   }
-  
-  void back(){}
 }
 
 class Canvas extends GameComponent{
@@ -1196,6 +1194,73 @@ class WeaponList extends ListTemplate{
   }
 }
 
+class BindingButton extends ButtonItem{
+  String title;
+  String param;
+  boolean selected=false;
+  KeyBinding target;
+  
+  BindingButton(String t,String s,KeyBinding target){
+    title=t;
+    int bind=target.getButtonBinding(s);
+    param=target.getType()==0?com.jogamp.newt.event.KeyEvent.getEventTypeString((short)bind):str(bind);
+    this.target=target;
+    setBackground(new Color(220,220,220));
+    setForeground(new Color(0,0,0));
+    setSelectBackground(new Color(200,200,200));
+    setSelectForeground(new Color(40,40,40));
+    setBorderColor(new Color(0,0,0,0));
+  }
+  
+  @Override
+  void display(){
+    pushStyle();
+    if(font==null)font=createFont("SansSerif.plain",dist.y*0.5);
+    textFont(font);
+    blendMode(BLEND);
+    strokeWeight(1);
+    fill(!focus?toColor(background):toColor(selectbackground));
+    stroke(0,0,0,0);
+    rectMode(CORNER);
+    rect(pos.x,pos.y,dist.x,dist.y);
+    stroke(!focus?color(0,0,0,0):toColor(menuRightColor));
+    line(pos.x,pos.y,pos.x,pos.y+dist.y);
+    fill(!focus?toColor(foreground):toColor(selectforeground));
+    textSize(dist.y*0.5);
+    textAlign(LEFT);
+    text(title,pos.x+5,pos.y+dist.y*0.7);
+    textAlign(RIGHT);
+    text(selected?param:"",pos.x+dist.x-5,pos.y+dist.y*0.7);
+    popStyle();
+  }
+  
+  @Override
+  void update(){
+    keyProcess();
+    super.update();
+  }
+  
+  void keyProcess(){
+    if(!selected&&getInputState("enter")){
+      selected=!selected;
+      keyMove=selected;
+    }else if(selected&&isInput()){
+      int next=target.getButtonBinding(param);
+      if(target.getType()==0&&keyPressed){
+        next=nowPressedKeyCode;
+      }else{
+        for(int i=0;i<ctrl_buttons.size();i++){
+          if(ctrl_buttons.get(i).pressed())next=i;
+        }
+      }
+      target.replaceBinding(target.getButtonBinding(param),param,next);
+      param=target.getType()==0?com.jogamp.newt.event.KeyEvent.getEventTypeString((short)next):str(next);
+      selected=!selected;
+      keyMove=selected;
+    }
+  }
+}
+
 class TextButton extends ButtonItem{
   
   TextButton(){
@@ -1267,17 +1332,10 @@ class NormalButton extends TextButton{
   void update(){
     super.update();
   }
-  
-  TextButton setText(String s){
-    return super.setText(s);
-  }
 }
 
 class MenuButton extends TextButton{
-  MenuTextBox box=new MenuTextBox();
   Color sideLineColor=new Color(toColor(menuRightColor));
-  boolean displayBox=false;
-  PFont font;
   
   MenuButton(){
     setBackground(new Color(220,220,220));
@@ -1296,14 +1354,6 @@ class MenuButton extends TextButton{
     setBorderColor(new Color(0,0,0,0));
   }
   
-  void setTextBoxBounds(float x,float y,float dx,float dy){
-    box.setBounds(x,y,dx,dy);
-  }
-  
-  void setExplanation(String s){
-    box.setText(s);
-  }
-  
   void display(){
     pushStyle();
     if(font==null)font=createFont("SansSerif.plain",dist.y*0.5);
@@ -1320,42 +1370,7 @@ class MenuButton extends TextButton{
     textAlign(CENTER);
     textSize(dist.y*0.5);
     text(text,center.x,center.y+dist.y*0.2);
-    if(displayBox)box.display();
     popStyle();
-  }
-  
-  void update(){
-    super.update();
-    if(displayBox)box.update();
-  }
-  
-  TextButton setText(String s){
-    return super.setText(s);
-  }
-  
-  void displayBox(boolean b){
-    displayBox=b;
-  }
-}
-
-class MenuButton_B extends MenuButton{
-  
-  MenuButton_B(){
-    init();
-  }
-  
-  MenuButton_B(String s){
-    super(s);
-    init();
-  }
-  
-  void init(){
-    setBackground(new Color(35,35,35));
-    setForeground(new Color(255,255,255));
-    setSelectBackground(new Color(55,55,55));
-    setSelectForeground(new Color(215,215,215));
-    sideLineColor=new Color(255,105,0);
-    setBorderColor(new Color(0,0,0,0));
   }
 }
 
@@ -1460,7 +1475,6 @@ class UpgradeButton extends MenuButton{
     popStyle();
   }
   
-  @Override
   void setExplanation(String s){
     expText=s;
   }

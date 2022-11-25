@@ -33,7 +33,7 @@ class Bullet extends Entity{
     }catch(Exception e){}
     isMine=true;
     setAABB();
-    setMass(2);
+    setMass(1.3);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -54,7 +54,7 @@ class Bullet extends Entity{
     }catch(Exception e){}
     isMine=true;
     setAABB();
-    setMass(2);
+    setMass(1.3);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -79,7 +79,7 @@ class Bullet extends Entity{
     vel=new PVector(cos(rotate)*speed,sin(rotate)*speed);
     duration=w.duration;
     setAABB();
-    setMass(2);
+    setMass(1.3);
     emission=c;
     setPrimitive(0.8,1,0,2);
   }
@@ -810,6 +810,7 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
   
   @Override
   public void display(PGraphics g){
+    if(pos==null)pos=player.pos;
     if(Debug){
       displayAABB(g);
     }

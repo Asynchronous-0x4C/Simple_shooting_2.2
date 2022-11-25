@@ -24,6 +24,7 @@
   "ex_SE":"Setting SE volume",
   "key":"Control",
   "ex_key":"Control setting",
+  "bind_enter":"Enter",
   "language":"Language",
   "ex_language":"Select language",
   "exit":"exit",

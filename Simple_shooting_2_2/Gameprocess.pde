@@ -806,6 +806,10 @@ class KeyBinding{
     addBinding(-7,"down");
   }
   
+  int getType(){
+    return type;
+  }
+  
   void addBinding(int i,String s){
     list.put(i,s);
   }

@@ -681,6 +681,15 @@ public void initMenu(){
        public void lostFocus(){}
     });
       //--
+      Y_AxisLayout bindLayout=new Y_AxisLayout(400,280,200,25,15);
+      BindingButton bind_enter=new BindingButton(getLanguageText("bind_enter"),"enter",keyboardBinding);
+      bind_enter.addFocusListener(new FocusEvent(){
+         public void getFocus(){
+          confBox.setText("");
+        }
+        
+         public void lostFocus(){}
+      });
       //--
     MenuButton Lang=new MenuButton(Language.getString("language"));
     Lang.addListener(()->{
@@ -810,7 +819,7 @@ public void initMenu(){
   starts.addSubChild("main","confMenu",toSet(confLayout,AbsMag,Display,Sounds,Keys,Lang,exit),toSet(confBox));
   starts.addSubChild("confMenu","dispMenu",toSet(dispLayout,Colorinv,dispFPS,Quality,vsy,fullsc),toSet(confBox));
   starts.addSubChild("confMenu","sndMenu",toSet(SE),toSet(confBox));
-  starts.addSubChild("confMenu","keyMenu",toSet(),toSet(confBox));
+  starts.addSubChild("confMenu","keyMenu",toSet(bindLayout,bind_enter),toSet(confBox));
   starts.addSubChild("confMenu","Language",toSet(LangList));
   starts.addChild("main","operation",toSet(back_op,op_canvas));
   starts.addChild("main","credit",toSet(back_cr,cr_canvas));

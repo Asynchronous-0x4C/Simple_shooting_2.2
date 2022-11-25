@@ -1,6 +1,7 @@
 import java.util.concurrent.atomic.AtomicInteger;
 
-import processing.sound.*;
+import ddf.minim.Minim;
+import ddf.minim.AudioPlayer;
 
 class EntityProcess implements Callable<String>{
   long pTime=0;
@@ -134,17 +135,19 @@ class saveConfig implements Runnable{
 }
 
 class SoundProcess implements Runnable{
-  private HashMap<String,SoundFile>sounds;
+  private HashMap<String,AudioPlayer>sounds;
   private HashMap<String,ArrayList<String>>soundData;
   
-  private SoundFile snd_BGM;
+  private AudioPlayer snd_BGM;
   
-  private Sound mainSound;
+  private Minim minim;
   
   private ArrayList<String>schedule;
   
   private float vol_SE=1;
+  private float gain_SE=1;
   private float vol_BGM=1;
+  private float gain_BGM=1;
   
   private boolean finishLoad=true;
   private boolean loop=true;
@@ -155,7 +158,7 @@ class SoundProcess implements Runnable{
     sounds=new HashMap<>();
     soundData=new HashMap<>();
     schedule=new ArrayList<>();
-    mainSound=new Sound(CopyApplet);
+    minim=new Minim(CopyApplet);
     JSONObject data=loadJSONObject(Windows?".\\data\\sound\\config.json":"../data/sound/config.json");
     JSONArray list=data.getJSONArray("state");
     for(int i=0;i<list.size();i++){
@@ -174,6 +177,7 @@ class SoundProcess implements Runnable{
             next.add(s);
           }else{
             sounds.get(s).play();
+            sounds.get(s).rewind();
             played.add(s);
           }
         });
@@ -195,7 +199,7 @@ class SoundProcess implements Runnable{
     }
     sounds.clear();
     soundData.get(state).forEach(s->{
-      sounds.put(s.replace(".mp3","").replace(".wav","").replace(".ogg",""),new SoundFile(CopyApplet,Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
+      sounds.put(s.replace(".mp3","").replace(".wav","").replace(".ogg",""),minim.loadFile(Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
     });
     applySEVolume();
     finishLoad=true;
@@ -203,12 +207,13 @@ class SoundProcess implements Runnable{
   
   void setSEVolume(float v){
     vol_SE=constrain(v,0,1);
+    gain_SE=20*log(vol_SE);
     if(vol_SE>0)applySEVolume();
   }
   
   void applySEVolume(){
     sounds.forEach((k,v)->{
-      v.amp(vol_SE);
+      v.setGain(gain_SE);
     });
   }
   
@@ -221,7 +226,7 @@ class SoundProcess implements Runnable{
   }
   
   int getBGMVolume(){
-    return round(vol_BGM*10);
+    return round(vol_BGM)*10;
   }
   
   void play(String name){
@@ -233,8 +238,9 @@ class SoundProcess implements Runnable{
   
   void stop(){
     sounds.forEach((k,v)->{
-      v.stop();
+      v.pause();
     });
+    minim.stop();
   }
   
   boolean finishLoad(){

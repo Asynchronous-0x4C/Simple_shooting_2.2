@@ -725,7 +725,7 @@ class Micro_Y extends Enemy{
   }
 }
 
-class Ghoast extends Enemy{
+class Ghost extends Enemy{
   
   @Override
   protected void init(){
@@ -743,12 +743,13 @@ class Ghoast extends Enemy{
   void Process(){
     if(inScreen){
       if(abs(player.rotate-atan2(pos,player.pos))<radians(50)||abs(player.rotate+TWO_PI-atan2(pos,player.pos))<radians(50)||abs(player.rotate-TWO_PI-atan2(pos,player.pos))<radians(50)){
-        if(c.getAlpha()==40)setColor(new Color(10,255,255,255));
+        if(c.getAlpha()==40)setColor(new Color(10,255,255,128));
       }else{
-        if(c.getAlpha()==255)setColor(new Color(10,255,255,40));
+        if(c.getAlpha()==255)setColor(new Color(10,255,255,20));
       }
+      setPrimitive(0.8,1,0,0);
     }else{
-      if(c.getAlpha()==40)setColor(new Color(10,255,255,255));
+      if(c.getAlpha()==40)setColor(new Color(10,255,255,128));
     }
   }
 }
