@@ -136,6 +136,8 @@ class saveConfig implements Runnable{
 
 class SoundProcess implements Runnable{
   private HashMap<String,AudioPlayer>sounds;
+  private HashMap<String,AudioPlayer>copy_sounds;
+  private HashMap<String,Integer>counts;
   private HashMap<String,ArrayList<String>>soundData;
   
   private AudioPlayer snd_BGM;
@@ -155,7 +157,9 @@ class SoundProcess implements Runnable{
   private boolean enableSE=true;
   
   SoundProcess(){
+    counts=new HashMap<>();
     sounds=new HashMap<>();
+    copy_sounds=new HashMap<>();
     soundData=new HashMap<>();
     schedule=new ArrayList<>();
     minim=new Minim(CopyApplet);
@@ -176,13 +180,22 @@ class SoundProcess implements Runnable{
           if(played.contains(s)){
             next.add(s);
           }else{
-            sounds.get(s).play();
-            sounds.get(s).rewind();
+            if(counts.get(s)%2==0){
+              sounds.get(s).play();
+              sounds.get(s).rewind();
+            }else{
+              copy_sounds.get(s).play();
+              copy_sounds.get(s).rewind();
+            }
+            counts.replace(s,counts.get(s)+1);
             played.add(s);
           }
         });
         schedule=next;
       }
+      sounds.forEach((k,v)->{
+        if(!v.isPlaying()&&copy_sounds.containsKey(k)&&!copy_sounds.get(k).isPlaying())counts.replace(k,0);
+      });
       try{
         Thread.sleep(8);
       }catch(InterruptedException e){
@@ -198,8 +211,20 @@ class SoundProcess implements Runnable{
       return;
     }
     sounds.clear();
+    copy_sounds.clear();
+    counts.clear();
     soundData.get(state).forEach(s->{
-      sounds.put(s.replace(".mp3","").replace(".wav","").replace(".ogg",""),minim.loadFile(Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
+      String name=s.replace(".mp3","").replace(".wav","").replace(".ogg","");
+      if(name.startsWith("*")){
+        name=name.substring(1);
+        s=s.substring(1);
+        sounds.put(name,minim.loadFile(Windows?(".\\data\\sound\\default\\"+s):("../data/sound/default/"+s)));
+        copy_sounds.put(name,minim.loadFile(Windows?(".\\data\\sound\\default\\"+s):("../data/sound/default/"+s)));
+      }else{
+        sounds.put(name,minim.loadFile(Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
+        copy_sounds.put(name,minim.loadFile(Windows?(".\\data\\sound\\"+state+"\\"+s):("../data/sound/"+state+"/"+s)));
+      }
+      counts.put(name,0);
     });
     applySEVolume();
     finishLoad=true;
@@ -213,6 +238,9 @@ class SoundProcess implements Runnable{
   
   void applySEVolume(){
     sounds.forEach((k,v)->{
+      v.setGain(gain_SE);
+    });
+    copy_sounds.forEach((k,v)->{
       v.setGain(gain_SE);
     });
   }
@@ -238,6 +266,9 @@ class SoundProcess implements Runnable{
   
   void stop(){
     sounds.forEach((k,v)->{
+      v.pause();
+    });
+    copy_sounds.forEach((k,v)->{
       v.pause();
     });
     minim.stop();

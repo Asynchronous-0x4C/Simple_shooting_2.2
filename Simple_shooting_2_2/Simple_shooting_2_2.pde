@@ -79,7 +79,8 @@ KeyBinding keyboardBinding=new KeyBinding();
 
 AtomicInteger killCount=new AtomicInteger(0);
 SoundProcess sound;
-GameProcess main;
+RenderingProcess main_rendering;
+GameProcess main_game;
 Stage stage;
 
 ComponentSetLayer stageLayer=new ComponentSetLayer();
@@ -221,10 +222,10 @@ void setup(){
       pscreen=new PVector(w.getWidth(), w.getHeight());
       g.width=width=w.getWidth();
       g.height=height=w.getHeight();
-      if(main!=null){
-        main.main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-        main.light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-        main.material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+      if(main_rendering!=null){
+        main_rendering.main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+        main_rendering.light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+        main_rendering.material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
       }
       ++resizedNumber;
       windowResized=true;
@@ -306,6 +307,9 @@ void setup(){
   if(doGPGPU)try{initMergeGPGPU();}catch(Exception e){e.printStackTrace();}
   LoadData();
   initThread();
+  main_game=new GameProcess();
+  main_rendering=new RenderingProcess(main_game);
+  main_game.renderer=main_rendering;
   exec.execute(sound);
 }
 
@@ -859,14 +863,14 @@ public void initMenu(){
     float normUItime=resultTime/30;
     background(320*normUItime);
     blendMode(BLEND);
-    float Width=width/main.x;
-    float Height=height/main.y;
-    for(int i=0;i<main.y;i++){
-      for(int j=0;j<main.x;j++){
+    float Width=width/main_game.x;
+    float Height=height/main_game.y;
+    for(int i=0;i<main_game.y;i++){
+      for(int j=0;j<main_game.x;j++){
         fill(230);
         noStroke();
         rectMode(CENTER);
-        float scale=min(max(resultTime*(main.y/9)-(j+i),0),1);
+        float scale=min(max(resultTime*(main_game.y/9)-(j+i),0),1);
         rect(Width*j+Width/2,Height*i+Height/2,Width*scale,Height*scale);
       }
     }
@@ -887,7 +891,7 @@ public void initMenu(){
   resultSet.update();
   if(resultAnimation){
     menuShader.set("time",resultTime);
-    menuShader.set("xy",(float)main.x,(float)main.y);
+    menuShader.set("xy",(float)main_game.x,(float)main_game.y);
     menuShader.set("resolution",(float)width,(float)height);
     menuShader.set("menuColor",230f/255f,230f/255f,230f/255f,1.0f);
     menuShader.set("tex",g);
@@ -911,8 +915,8 @@ public void initMenu(){
 
  public void Field() {
   if (changeScene){
-    main=new GameProcess();
     stage.name=StageName;
+    main_game.init();
     JSONArray data=loadJSONArray(StageConfPath+StageName+".json");
     for(int i=0;i<data.size();i++){
       JSONObject config=data.getJSONObject(i);
@@ -942,13 +946,13 @@ public void initMenu(){
         JSONArray walls=config.getJSONArray("wall");
         for(int j=0;j<walls.size();j++){
           JSONArray wall=walls.getJSONArray(j);
-          main.addWall(wall.getFloat(0),wall.getFloat(1),wall.getFloat(2),wall.getFloat(3));
+          main_game.addWall(wall.getFloat(0),wall.getFloat(1),wall.getFloat(2),wall.getFloat(3));
         }
       }
     }
     stage.addProcess(StageName,new TimeSchedule(Float.MAX_VALUE,s->{s.endSchedule=true;}));
   }
-  main.process();
+  main_game.process();
 }
 
  public void eventProcess() {
@@ -1530,7 +1534,7 @@ class Entity implements Egent,Cloneable{
   }
   
   void setGeometry(){
-    if(inScreen)main.geometry.addSync(threadNum,this);
+    if(inScreen)main_rendering.geometry.addSync(threadNum,this);
   }
   
   void setShape(Shape s){

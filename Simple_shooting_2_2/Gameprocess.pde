@@ -1,16 +1,11 @@
 class GameProcess{
+  RenderingProcess renderer;
   HashMap<String,String>EventSet;
   HashMap<String,Command>CommandQue=new HashMap<String,Command>();
   ComponentSet HUDSet;
   ComponentSet UpgradeSet;
-  ComponentSet PauseSet;
   ArrayList<WallEntity>wall;
-  Geometry geometry;
   Color menuColor=new Color(230,230,230);
-  PGraphicsOpenGL main;
-  PGraphicsOpenGL light;
-  PGraphicsOpenGL material;
-  PShader renderer;
   float UItime=0;
   boolean gameOver=false;
   boolean animation=false;
@@ -30,22 +25,15 @@ class GameProcess{
   }
   
   public void setup(){
-    main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-    light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-    material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-    renderer=loadShader(ShaderPath+"renderer.glsl");
     init();
   }
   
   public void init(){
     sound.disable();
     sound.loadData("game");
-    geometry=new Geometry(this);
     EventSet=new HashMap<String,String>();
     HUDSet=new ComponentSet();
     UpgradeSet=new ComponentSet();
-    PauseSet=new ComponentSet();
-    initPause();
     stageLayer=new ComponentSetLayer();
     stageLayer.addLayer("root",UpgradeSet);
     stageLayer.addSubChild("root","HUD",HUDSet);
@@ -93,28 +81,6 @@ class GameProcess{
                     break;
     }
     sound.enable();
-  }
-  
-  private void initPause(){
-    SkeletonButton back=new SkeletonButton(getLanguageText("me_back"));
-    back.setBounds(width*0.5-90,height*0.5-36,180,37);
-    back.addWindowResizeEvent(()->{
-      back.setBounds(width*0.5-90,height*0.5-36,180,37);
-    });
-    back.addListener(()->{
-      menu=false;
-      pause=false;
-    });
-    SkeletonButton menu=new SkeletonButton(getLanguageText("me_menu"));
-    menu.setBounds(width*0.5-90,height*0.5+36,180,37);
-    menu.addWindowResizeEvent(()->{
-      menu.setBounds(width*0.5-90,height*0.5+36,180,37);
-    });
-    menu.addListener(()->{
-      done=true;
-      scene=0;
-    });
-    PauseSet.addAll(back,menu);
   }
   
   private void initTutorial(){
@@ -224,11 +190,6 @@ class GameProcess{
   }
 
   public void updateShape(){
-    if(!menu){
-      geometry.clear();
-    }else{
-      geometry.cleanUp();
-    }
     if(!pause){
       EntitySet=new HashSet(Entities);
       for(int i=0;i<nearEnemy.size();i++){
@@ -245,7 +206,6 @@ class GameProcess{
         }
       });
       applyStaus();
-      player.update();
       stage.update();
     }else{
       EntityTime=0;
@@ -273,7 +233,6 @@ class GameProcess{
             player.rotate=0;
           }
         }
-        player.update();
       }
     }
     if(menu){
@@ -286,6 +245,8 @@ class GameProcess{
       popMatrix();
     }
     if(!(upgrade||menu)){
+      renderer.geometry.clear();
+      player.update();
       byte ThreadNumber=(byte)min(Entities.size(),(int)updateNumber);
       float block=Entities.size()/(float)ThreadNumber;
       for(byte b=0;b<ThreadNumber;b++){
@@ -334,6 +295,8 @@ class GameProcess{
           return Float.valueOf(d1.getPos()).compareTo(d2.getPos());
         }
       });
+    }else{
+      renderer.geometry.cleanUp();
     }
     HashMap<String,Command>nextQue=new HashMap<String,Command>();
     CommandQue.forEach((k,v)->{
@@ -348,96 +311,9 @@ class GameProcess{
     pushMatrix();
     translate(scroll.x,scroll.y);
     localMouse=unProject(mouseX,mouseY);
-    geometry.merge();
-    main.beginDraw();
-    main.beginDraw();
-    main.background(ambient.getRed(),ambient.getGreen(),ambient.getBlue(),0);
-    main.translate(scroll.x,scroll.y);
-    main.noStroke();
-    main.rectMode(CENTER);
-    geometry.Objects.forEach(e->e.primitive.display(main));
-    main.endDraw();
-    light.beginDraw();
-    light.background(0);
-    light.translate(scroll.x,scroll.y);
-    light.noStroke();
-    light.rectMode(CENTER);
-    light.blendMode(LIGHTEST);
-    geometry.Objects.forEach(e->e.primitive.displayLight(light));
-    light.endDraw();
-    material.beginDraw();
-    material.background(0,255,0);
-    material.translate(scroll.x,scroll.y);
-    material.noStroke();
-    material.rectMode(CENTER);
-    material.blendMode(ADD);
-    geometry.Objects.forEach(e->e.primitive.displayMaterial(material));
-    material.endDraw();
-    renderer.set("light",light);
-    renderer.set("primitive",main);
-    renderer.set("material",material);
-    renderer.set("resolution",width,height);
-    renderer.set("GI",GI.getRed()/255f,GI.getGreen()/255f,GI.getBlue()/255f);
-    renderer.set("ambient",ambient.getRed()/255f,ambient.getGreen()/255f,ambient.getBlue()/255f);
-    filter(renderer);
-    stage.display();
-    Entities.forEach(e->{e.display(g);});
-    if(!player.isDead)player.display(g);
-    if(LensData.size()>0){
-      loadPixels();
-      float[] centers=new float[20];
-      float[] rads=new float[10];
-      for(int i=0;i<10;i++){
-        if(i<LensData.size()){
-          centers[2*i]=LensData.get(i).screen.x;
-          centers[2*i+1]=LensData.get(i).screen.y;
-          rads[i]=LensData.get(i).scale*0.1f;
-        }else{
-          centers[2*i]=0;
-          centers[2*i+1]=0;
-          rads[i]=1;
-        }
-      }
-      GravityLens.set("center",centers,2);
-      GravityLens.set("g",rads);
-      GravityLens.set("len",LensData.size());
-      GravityLens.set("texture",g);
-      GravityLens.set("resolution",width,height);
-      applyShader(GravityLens);
-    }
-    LensData.clear();
-    displayHUD();
+    renderer.display((PGraphicsOpenGL)g);
     popMatrix();
     DrawTime=(System.nanoTime()-pTime)/1000000f;
-  }
-  
-  public void displayHUD(){
-    push();
-    resetMatrix();
-    stageLayer.display();
-    if(menu){
-      PauseSet.display();
-      PauseSet.update();
-    }else{
-      stageLayer.update();
-    }
-    rectMode(CORNER);
-    noFill();
-    stroke(255);
-    strokeWeight(1);
-    rect(200,30,width-230,30);
-    fill(255);
-    noStroke();
-    rect(202.5f,32.5f,(width-225)*player.exp/player.nextLevel,25);
-    textSize(20);
-    textFont(font_20);
-    textAlign(RIGHT);
-    text("LEVEL "+player.Level,190,52);
-    textFont(font_15);
-    textAlign(CENTER);
-    text("Time "+nf(floor(stage.time/3600),floor(stage.time/360000)>=1?0:2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
-    text(Language.getString("ui_kill")+":"+killCount,width-200,78);
-    pop();
   }
   
   public void keyProcess(){
@@ -586,13 +462,13 @@ class GameProcess{
     }
   }
   
-   public void command_time(java.util.List<Token>tokens){
+   private void command_time(java.util.List<Token>tokens){
     stage.time=max(0,setParameter(stage.time,tokens.get(1).getText(),PApplet.parseFloat(tokens.get(2).getText())*60));
     stage.scheduleUpdate();
     stage.clearSpown();
   }
   
-   public void command_level(java.util.List<Token>tokens){
+   private void command_level(java.util.List<Token>tokens){
     if(tokens.get(1).getText().equals("@p")){
       int targetLevel=(int)setParameter((float)player.Level,tokens.get(2).getText(),PApplet.parseFloat(tokens.get(3).getText()));
       if(player.Level<targetLevel){
@@ -634,7 +510,7 @@ class GameProcess{
     }
   }
   
-   public void command_give(java.util.List<Token>tokens){
+   private void command_give(java.util.List<Token>tokens){
     String src=tokens.get(1).getText();
     if(tokens.get(1).getText().length()>2&&masterTable.contains(src.replace("\"",""))){
       SubWeapon w=masterTable.get(src.replace("\"","")).getWeapon();
@@ -650,11 +526,11 @@ class GameProcess{
     }
   }
   
-   public void command_weapon(java.util.List<Token>tokens){
+   private void command_weapon(java.util.List<Token>tokens){
     if(tokens.get(1).getText().length()>2&&masterTable.contains(tokens.get(1).getText().replace("\"",""))&&!player.subWeapons.contains(masterTable.get(tokens.get(1).getText().replace("\"","")).getWeapon())){}
   }
   
-   public void command_kill(java.util.List<Token>tokens){
+   private void command_kill(java.util.List<Token>tokens){
     if(tokens.get(1).getText().equals("@p")){
       player.HP.set(0);
     }else{
@@ -669,7 +545,7 @@ class GameProcess{
     }
   }
   
-   public void command_function(java.util.List<Token>tokens){
+   private void command_function(java.util.List<Token>tokens){
     try{
       String[] functions=loadStrings(tokens.get(1).getText().replace("\"",""));
       for(String s:functions){
@@ -688,12 +564,12 @@ class GameProcess{
     }
   }
   
-   public void command_exit(){
+   private void command_exit(){
     scene=0;
     done=true;
   }
   
-   public float setParameter(float data,String type,float num){
+   private float setParameter(float data,String type,float num){
     if(type.equals("add")){
       return data+num;
     }else if(type.equals("set")){
@@ -702,6 +578,144 @@ class GameProcess{
       return data-num;
     }
     return data;
+  }
+}
+
+class RenderingProcess{
+  GameProcess mainProcess;
+  Geometry geometry;
+  PGraphicsOpenGL main;
+  PGraphicsOpenGL light;
+  PGraphicsOpenGL material;
+  PImage backGround;
+  PShader renderer;
+  ComponentSet PauseSet;
+  
+  RenderingProcess(GameProcess m){
+    mainProcess=m;
+    geometry=new Geometry();
+    main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    backGround=loadImage(ImagePath+"sky.jpg");
+    renderer=loadShader(ShaderPath+"renderer.glsl");
+    PauseSet=new ComponentSet();
+    initPause();
+  }
+  
+  private void initPause(){
+    SkeletonButton back=new SkeletonButton(getLanguageText("me_back"));
+    back.setBounds(width*0.5-90,height*0.5-36,180,37);
+    back.addWindowResizeEvent(()->{
+      back.setBounds(width*0.5-90,height*0.5-36,180,37);
+    });
+    back.addListener(()->{
+      mainProcess.menu=false;
+      pause=false;
+    });
+    SkeletonButton menu=new SkeletonButton(getLanguageText("me_menu"));
+    menu.setBounds(width*0.5-90,height*0.5+36,180,37);
+    menu.addWindowResizeEvent(()->{
+      menu.setBounds(width*0.5-90,height*0.5+36,180,37);
+    });
+    menu.addListener(()->{
+      mainProcess.done=true;
+      scene=0;
+    });
+    PauseSet.addAll(back,menu);
+  }
+  
+  void display(PGraphicsOpenGL g){
+    geometry.merge();
+    main.beginDraw();
+    main.beginDraw();
+    main.background(ambient.getRed(),ambient.getGreen(),ambient.getBlue(),0);
+    main.translate(scroll.x,scroll.y);
+    main.noStroke();
+    main.rectMode(CENTER);
+    geometry.Objects.forEach(e->e.primitive.display(main));
+    main.endDraw();
+    light.beginDraw();
+    light.background(0);
+    light.translate(scroll.x,scroll.y);
+    light.noStroke();
+    light.rectMode(CENTER);
+    light.blendMode(LIGHTEST);
+    geometry.Objects.forEach(e->e.primitive.displayLight(light));
+    light.endDraw();
+    material.beginDraw();
+    material.background(0,255,0);
+    material.translate(scroll.x,scroll.y);
+    material.noStroke();
+    material.rectMode(CENTER);
+    material.blendMode(ADD);
+    geometry.Objects.forEach(e->e.primitive.displayMaterial(material));
+    material.endDraw();
+    renderer.set("seed",(int)random(0,20),(int)random(0,20));
+    renderer.set("light",light);
+    renderer.set("primitive",main);
+    renderer.set("material",material);
+    renderer.set("background",backGround);
+    renderer.set("resolution",width,height);
+    renderer.set("GI",GI.getRed()/255f,GI.getGreen()/255f,GI.getBlue()/255f);
+    renderer.set("ambient",ambient.getRed()/255f,ambient.getGreen()/255f,ambient.getBlue()/255f);
+    g.filter(renderer);
+    stage.display();
+    Entities.forEach(e->{e.display(g);});
+    if(!player.isDead)player.display(g);
+    if(LensData.size()>0){
+      loadPixels();
+      float[] centers=new float[20];
+      float[] rads=new float[10];
+      for(int i=0;i<10;i++){
+        if(i<LensData.size()){
+          centers[2*i]=LensData.get(i).screen.x;
+          centers[2*i+1]=LensData.get(i).screen.y;
+          rads[i]=LensData.get(i).scale*0.1f;
+        }else{
+          centers[2*i]=0;
+          centers[2*i+1]=0;
+          rads[i]=1;
+        }
+      }
+      GravityLens.set("center",centers,2);
+      GravityLens.set("g",rads);
+      GravityLens.set("len",LensData.size());
+      GravityLens.set("texture",g);
+      GravityLens.set("resolution",width,height);
+      applyShader(GravityLens);
+    }
+    LensData.clear();
+    displayHUD();
+  }
+  
+  public void displayHUD(){
+    push();
+    resetMatrix();
+    stageLayer.display();
+    if(mainProcess.menu){
+      PauseSet.display();
+      PauseSet.update();
+    }else{
+      stageLayer.update();
+    }
+    rectMode(CORNER);
+    noFill();
+    stroke(255);
+    strokeWeight(1);
+    rect(200,30,width-230,30);
+    fill(255);
+    noStroke();
+    rect(202.5f,32.5f,(width-225)*player.exp/player.nextLevel,25);
+    textSize(20);
+    textFont(font_20);
+    textAlign(RIGHT);
+    text("LEVEL "+player.Level,190,52);
+    textFont(font_15);
+    textAlign(CENTER);
+    text("Time "+nf(floor(stage.time/3600),floor(stage.time/360000)>=1?0:2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
+    text(Language.getString("ui_kill")+":"+killCount,width-200,78);
+    pop();
   }
 }
 

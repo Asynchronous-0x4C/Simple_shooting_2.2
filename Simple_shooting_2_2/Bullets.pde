@@ -810,7 +810,7 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
   
   @Override
   public void display(PGraphics g){
-    if(pos==null)pos=player.pos;
+    if(vel==null)initDirection();
     if(Debug){
       displayAABB(g);
     }
@@ -827,6 +827,22 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
     nextHitEnemy.forEach(e->{HitEnemy.add(e);});
     nextHitEnemy.clear();
     setAABB();
+  }
+  
+  void initDirection(){
+    int len=width+height;
+    for(int i=0;i<4;i++){
+      switch(i){
+        case 0:vel=SegmentCrossPoint(scroll.copy().mult(-1),new PVector(width,0),pos,new PVector(len,0).rotate(rad));break;
+        case 1:vel=SegmentCrossPoint(scroll.copy().mult(-1).add(0,height),new PVector(width,0),pos,new PVector(len,0).rotate(rad));break;
+        case 2:vel=SegmentCrossPoint(scroll.copy().mult(-1),new PVector(0,height),pos,new PVector(len,0).rotate(rad));break;
+        case 3:vel=SegmentCrossPoint(scroll.copy().mult(-1).add(width,0),new PVector(0,height),pos,new PVector(len,0).rotate(rad));break;
+      }
+      if(vel!=null){
+        vel.sub(pos);
+        break;
+      }
+    }
   }
   
   @Override
@@ -1011,7 +1027,7 @@ class EnemyPoisonBullet extends ThroughBullet{
   
   @Override
   void MyselfHit(Myself m,boolean b){
-    main.CommandQue.put("Poison",new Command(0,90,0,(s)->{
+    main_game.CommandQue.put("Poison",new Command(0,90,0,(s)->{
       if(s.equals("exec"))player.speedMag=0.5;
       if(s.equals("shutdown"))player.speedMag=1;
     }));
@@ -1029,7 +1045,7 @@ class AntiSkillBullet extends ThroughBullet{
   
   @Override
   void MyselfHit(Myself m,boolean b){
-    main.CommandQue.put("Poison",new Command(0,90,0,(s)->{
+    main_game.CommandQue.put("Poison",new Command(0,90,0,(s)->{
       if(s.equals("exec"))player.useSub=false;
       if(s.equals("shutdown"))player.useSub=true;
     }));

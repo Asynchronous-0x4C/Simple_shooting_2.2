@@ -260,8 +260,8 @@ class DummyEnemy extends Enemy implements BlastResistant{
   {
     exp=new Exp();
     dead=(e)->{
-      ((HUDText)main.HUDSet.components.get(3)).endDisplay();
-      ((HUDText)main.HUDSet.components.get(4)).setTarget(exp);
+      ((HUDText)main_game.HUDSet.components.get(3)).endDisplay();
+      ((HUDText)main_game.HUDSet.components.get(4)).setTarget(exp);
     };
   }
   
@@ -480,7 +480,7 @@ class M_Boss_Y extends Enemy implements BossEnemy{
     super.setPos(p);
     if(StageName.equals("Stage1")){
       boss.setTarget(this);
-      main.HUDSet.add(boss);
+      main_game.HUDSet.add(boss);
       boss.startDisplay();
     }
     return this;
@@ -799,7 +799,7 @@ class Formation extends M_Boss_Y implements BossEnemy{
     pos=p;
     if(StageName.equals("Stage2")){
       boss.setTarget(this);
-      main.HUDSet.add(boss);
+      main_game.HUDSet.add(boss);
       boss.startDisplay();
     }
     return this;
@@ -1109,7 +1109,7 @@ class EnemyShield extends M_Boss_Y implements BossEnemy{
     pos=p;
     if(StageName.equals("Stage3")){
       boss.setTarget(this);
-      main.HUDSet.add(boss);
+      main_game.HUDSet.add(boss);
       boss.startDisplay();
     }
     return this;
@@ -1436,7 +1436,7 @@ class Barrier extends M_Boss_Y implements BossEnemy{
     pos=p;
     if(StageName.equals("Stage4")){
       boss.setTarget(this);
-      main.HUDSet.add(boss);
+      main_game.HUDSet.add(boss);
       boss.startDisplay();
     }
     return this;
@@ -1625,7 +1625,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     pos=p;
     if(StageName.equals("Stage5")){
       boss.setTarget(this);
-      main.HUDSet.add(boss);
+      main_game.HUDSet.add(boss);
       boss.startDisplay();
     }
     Frags=new ArrayList<SealedFrag>();

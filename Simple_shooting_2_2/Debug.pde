@@ -87,7 +87,7 @@ class CommandField extends LineTextField{
       text=new StringBuilder();
       index=0;
       if(parser.getNumberOfSyntaxErrors()>0)return;
-      main.commandProcess(tokens.getTokens());
+      main_game.commandProcess(tokens.getTokens());
     };
   }
   

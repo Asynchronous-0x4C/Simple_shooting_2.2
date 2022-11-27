@@ -224,7 +224,6 @@ class TimeSchedule{
 }
 
 class Geometry{
-  GameProcess parent;
   ArrayList<ArrayList<Entity>>Sync;
   ArrayList<Entity>Objects;
   
@@ -234,10 +233,6 @@ class Geometry{
       Sync.add(new ArrayList<>());
     }
     Objects=new ArrayList<>();
-  }
-  
-  Geometry(GameProcess p){
-    parent=p;
   }
   
   void clear(){
@@ -306,7 +301,7 @@ class Primitive implements Cloneable{
   }
   
   void rendering(){
-    disp=m.getSurfaceColor();
+    disp=m.base;
     lc=m.getLightColor();
   }
   
@@ -396,22 +391,6 @@ class Material implements Cloneable{
   
   int lightColor(float c){
     return (int)min(255,(getMax(emission)==c?c*emissionStrength/PI:mix(c,255,(getMax(emission)*emissionStrength/9000f)))*base.getAlpha()/255f);
-  }
-  
-  Color getSurfaceColor(){
-    return new Color(surfaceColor(0,base.getRed()),surfaceColor(1,base.getGreen()),surfaceColor(2,base.getBlue()),surfaceColor(3,base.getAlpha()));
-  }
-  
-  int surfaceColor(int t,float c){
-    float emi=0;
-    switch(t){
-      case 0:emi=emission.getRed();break;
-      case 1:emi=emission.getGreen();break;
-      case 2:emi=emission.getBlue();break;
-      case 3:emi=getMax(emission);return (int)min(255,mix(c,255,emi*emissionStrength/31875f));
-    }
-    return (int)min(255,(emi==getMax(emission)?emi*emissionStrength/PI:getMax(emission)*emissionStrength/150f)
-                +(c*mix(getMax(base)==0?0:(getMax(base)+albedo*getMax(GI)*roughness)/getMax(base),c/255f*getMax(ambient)/255f,metalness)));
   }
 }
 

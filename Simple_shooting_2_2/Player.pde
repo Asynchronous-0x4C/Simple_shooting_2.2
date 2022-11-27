@@ -89,10 +89,10 @@ class Myself extends Entity{
   void update(){
     super.update();
     if(isDead){
-      if(main.geometry.Objects.contains(this))main.geometry.Objects.remove(this);
+      if(main_rendering.geometry.Objects.contains(this))main_rendering.geometry.Objects.remove(this);
       return;
     }
-    main.geometry.Objects.add(this);
+    main_rendering.geometry.Objects.add(this);
     while(exp>=nextLevel){
       exp-=nextLevel;
       ++Level;
@@ -108,7 +108,7 @@ class Myself extends Entity{
       }
       if(HP.get().floatValue()<=0){
         isDead=true;
-        main.EventSet.put("player_dead","");
+        main_game.EventSet.put("player_dead","");
         return;
       }
       keyEvent();
@@ -363,7 +363,7 @@ class Satellite extends Entity{
   
   @Override
   void update(){
-    if(!player.subWeapons.contains(satellite))main.CommandQue.put(getClass().getName(),new Command(0,0,0,(e)->Entities.remove(this)));
+    if(!player.subWeapons.contains(satellite))main_game.CommandQue.put(getClass().getName(),new Command(0,0,0,(e)->Entities.remove(this)));
     cooltime+=vectorMagnification;
     if(attack){
       attackTime+=vectorMagnification;

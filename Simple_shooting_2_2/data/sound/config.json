@@ -1,5 +1,6 @@
 {
   "state":["menu","game"],
-  "menu":["enter.mp3","cursor_move.mp3"],
-  "game":["shot_01.mp3","shot_02.mp3","hit.mp3","break.mp3"]
+  "default":["enter.mp3","cursor_move.mp3"],
+  "menu":["*enter.mp3","*cursor_move.mp3"],
+  "game":["*enter.mp3","*cursor_move.mp3","shot_01.mp3","shot_02.mp3","hit.mp3","break.mp3"]
 }
