@@ -5,7 +5,7 @@ uniform float g[10];
 uniform int len;
 
 void main(void){
-  vec2 pos=vec2(gl_FragCoord)/resolution;
+  vec2 pos=gl_FragCoord.xy/resolution;
   bool black=false;
   for(int i=0;i<10&&i<len;i++){
     vec2 dist=center[i]-vec2(gl_FragCoord);

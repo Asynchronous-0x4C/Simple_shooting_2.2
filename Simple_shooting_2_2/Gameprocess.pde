@@ -1,7 +1,7 @@
 class GameProcess{
   RenderingProcess renderer;
   HashMap<String,String>EventSet;
-  HashMap<String,Command>CommandQue=new HashMap<String,Command>();
+  HashMap<String,Command>CommandQue;
   ComponentSet HUDSet;
   ComponentSet UpgradeSet;
   ArrayList<WallEntity>wall;
@@ -32,6 +32,7 @@ class GameProcess{
     sound.disable();
     sound.loadData("game");
     EventSet=new HashMap<String,String>();
+    CommandQue=new HashMap<String,Command>();
     HUDSet=new ComponentSet();
     UpgradeSet=new ComponentSet();
     stageLayer=new ComponentSetLayer();
@@ -44,7 +45,7 @@ class GameProcess{
     player=new Myself();
     stage=new Stage();
     StageFlag.clear();
-    pause=false;
+    gameOver=animation=upgrade=done=menu=pause=false;
     killCount.set(0);
     sumLevel=0;
     addtionalProjectile=0;
@@ -77,6 +78,9 @@ class GameProcess{
                     player.subWeapons.add(masterTable.get("Grenade").getWeapon());
                     break;
       case "Stage5":player.subWeapons.add(masterTable.get("Fire").getWeapon());
+                    player.subWeapons.add(masterTable.get("Lightning").getWeapon());
+                    break;
+      case "Stage6":player.subWeapons.add(masterTable.get("PlasmaField").getWeapon());
                     player.subWeapons.add(masterTable.get("Lightning").getWeapon());
                     break;
     }
@@ -245,7 +249,7 @@ class GameProcess{
       popMatrix();
     }
     if(!(upgrade||menu)){
-      renderer.geometry.clear();
+      renderer.getGeometry().clear();
       player.update();
       byte ThreadNumber=(byte)min(Entities.size(),(int)updateNumber);
       float block=Entities.size()/(float)ThreadNumber;
@@ -296,7 +300,7 @@ class GameProcess{
         }
       });
     }else{
-      renderer.geometry.cleanUp();
+      renderer.getGeometry().cleanUp();
     }
     HashMap<String,Command>nextQue=new HashMap<String,Command>();
     CommandQue.forEach((k,v)->{
@@ -582,25 +586,32 @@ class GameProcess{
 }
 
 class RenderingProcess{
-  GameProcess mainProcess;
-  Geometry geometry;
-  PGraphicsOpenGL main;
-  PGraphicsOpenGL light;
-  PGraphicsOpenGL material;
-  PImage backGround;
-  PShader renderer;
-  ComponentSet PauseSet;
+  private GameProcess mainProcess;
+  private Geometry geometry;
+  private PGraphicsOpenGL main;
+  private PGraphicsOpenGL light;
+  private PGraphicsOpenGL material;
+  private PImage backGround;
+  private PShader renderer;
+  private ComponentSet PauseSet;
   
   RenderingProcess(GameProcess m){
     mainProcess=m;
     geometry=new Geometry();
-    main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-    light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
-    material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    initGraphics();
     backGround=loadImage(ImagePath+"sky.jpg");
     renderer=loadShader(ShaderPath+"renderer.glsl");
     PauseSet=new ComponentSet();
     initPause();
+  }
+  
+  public void initGraphics(){
+    main=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    light=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    material=(PGraphicsOpenGL)createGraphics(width,height,P2D);
+    main.hint(DISABLE_OPENGL_ERRORS);
+    light.hint(DISABLE_OPENGL_ERRORS);
+    material.hint(DISABLE_OPENGL_ERRORS);
   }
   
   private void initPause(){
@@ -627,7 +638,7 @@ class RenderingProcess{
   
   void display(PGraphicsOpenGL g){
     geometry.merge();
-    main.beginDraw();
+    main.noSmooth();
     main.beginDraw();
     main.background(ambient.getRed(),ambient.getGreen(),ambient.getBlue(),0);
     main.translate(scroll.x,scroll.y);
@@ -635,6 +646,7 @@ class RenderingProcess{
     main.rectMode(CENTER);
     geometry.Objects.forEach(e->e.primitive.display(main));
     main.endDraw();
+    light.noSmooth();
     light.beginDraw();
     light.background(0);
     light.translate(scroll.x,scroll.y);
@@ -643,15 +655,14 @@ class RenderingProcess{
     light.blendMode(LIGHTEST);
     geometry.Objects.forEach(e->e.primitive.displayLight(light));
     light.endDraw();
+    material.noSmooth();
     material.beginDraw();
     material.background(0,255,0);
     material.translate(scroll.x,scroll.y);
     material.noStroke();
     material.rectMode(CENTER);
-    material.blendMode(ADD);
     geometry.Objects.forEach(e->e.primitive.displayMaterial(material));
     material.endDraw();
-    renderer.set("seed",(int)random(0,20),(int)random(0,20));
     renderer.set("light",light);
     renderer.set("primitive",main);
     renderer.set("material",material);
@@ -660,6 +671,9 @@ class RenderingProcess{
     renderer.set("GI",GI.getRed()/255f,GI.getGreen()/255f,GI.getBlue()/255f);
     renderer.set("ambient",ambient.getRed()/255f,ambient.getGreen()/255f,ambient.getBlue()/255f);
     g.filter(renderer);
+    FXAAShader.set("resolution",width,height);
+    FXAAShader.set("input_texture",g);
+    g.filter(FXAAShader);
     stage.display();
     Entities.forEach(e->{e.display(g);});
     if(!player.isDead)player.display(g);
@@ -716,6 +730,10 @@ class RenderingProcess{
     text("Time "+nf(floor(stage.time/3600),floor(stage.time/360000)>=1?0:2,0)+":"+nf(floor((stage.time/60)%60),2,0),width*0.5f,78);
     text(Language.getString("ui_kill")+":"+killCount,width-200,78);
     pop();
+  }
+  
+  Geometry getGeometry(){
+    return geometry;
   }
 }
 

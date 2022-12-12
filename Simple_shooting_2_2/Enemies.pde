@@ -19,7 +19,7 @@ class Enemy extends Entity implements Cloneable{
   protected double HP=10d;
   
   Enemy(){//check
-    setColor(new Color(0,0,255,128));
+    setColor(new Color(0,0,255,128));//metalness->x
     shape=((g,c,e)->{
       g.pushMatrix();
       g.translate(e.pos.x,e.pos.y);//pos->null(always)
@@ -31,7 +31,7 @@ class Enemy extends Entity implements Cloneable{
       g.popMatrix();
     });
     init();
-    setPrimitive(0.8,1,0,0);
+    if(primitive==null)setPrimitive(0.8,1,0,0);
   }
   
   Enemy(PVector pos){
@@ -46,8 +46,8 @@ class Enemy extends Entity implements Cloneable{
       g.popMatrix();
     });
     init();
+    if(primitive==null)setPrimitive(0.8,1,0,0);
     this.pos=pos;
-    setPrimitive(0.8,1,0,0);
   }
   
   protected void init(){
@@ -1477,7 +1477,8 @@ class GoldEnemy extends Enemy implements BossEnemy{
     rotateSpeed=2;
     setSize(25);
     setMass(30);
-    setColor(new Color(230,180,34,128));
+    setColor(new Color(240,198,95));
+    setPrimitive(0.8,0,1,0);
   }
   
   void Hit(Weapon w){
@@ -1593,7 +1594,7 @@ class Sealed extends M_Boss_Y implements BossEnemy{
       boss=new HUDText("BOSS");
       dead=(e)->{
         StageFlag.add("Survive_10_min");
-        stage.addSchedule(StageName,new TimeSchedule(stage.time/60f+3,(s)->{conf.setBoolean("clear",true);scene=3;}));
+        stage.addSchedule(StageName,new TimeSchedule(stage.time/60f+3,(s)->{/*conf.setBoolean("clear",true);*/if(!stageList.contains("Stage2"))stageList.addContent("Stage2");scene=3;}));
         boss.Dispose();
       };
     }
@@ -1695,6 +1696,186 @@ class Sealed extends M_Boss_Y implements BossEnemy{
     
     @Override
     void EnemyCollision(Enemy e){}
+  }
+}
+
+class AlminiumEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(2);
+    setExpMag(2.5);
+    maxSpeed=1;
+    rotateSpeed=4;
+    setSize(28);
+    setMass(15);
+    setColor(new Color(233,233,235));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class ChromiumEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(5);
+    setExpMag(2.5);
+    maxSpeed=0.65;
+    rotateSpeed=2.7;
+    setSize(28);
+    setMass(16.5);
+    setColor(new Color(140,142,141));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class CobaltEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(10);
+    setExpMag(2.5);
+    maxSpeed=0.62;
+    rotateSpeed=2.7;
+    setSize(25);
+    setMass(18);
+    setColor(new Color(169,167,162));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class CopperEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(15);
+    setExpMag(2.5);
+    maxSpeed=0.72;
+    rotateSpeed=3;
+    setSize(28);
+    setMass(18);
+    setColor(new Color(236,184,129));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class IronEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(20);
+    setExpMag(2);
+    maxSpeed=0.65;
+    rotateSpeed=2.5;
+    setSize(28);
+    setMass(20);
+    setColor(new Color(135,131,126));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class LeadEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(25);
+    setExpMag(2);
+    maxSpeed=0.5;
+    rotateSpeed=2;
+    setSize(28);
+    setMass(22);
+    setColor(new Color(161,160,163));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class NickelEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(30);
+    setExpMag(2);
+    maxSpeed=0.65;
+    rotateSpeed=2.5;
+    setSize(25);
+    setMass(20);
+    setColor(new Color(165,156,138));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class SilverEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(40);
+    setExpMag(2);
+    maxSpeed=1.8;
+    rotateSpeed=3.3;
+    setSize(28);
+    setMass(19);
+    setColor(new Color(245,242,235));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class SiliconEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(50);
+    setExpMag(2);
+    maxSpeed=0.75;
+    rotateSpeed=3.2;
+    setSize(23);
+    setMass(18);
+    setColor(new Color(88,94,107));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class TitaniumEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(65);
+    setExpMag(2);
+    maxSpeed=0.8;
+    rotateSpeed=2.9;
+    setSize(30);
+    setMass(20);
+    setColor(new Color(157,148,139));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class VanadiumEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(80);
+    setExpMag(2);
+    maxSpeed=0.75;
+    rotateSpeed=3.2;
+    setSize(23);
+    setMass(20);
+    setColor(new Color(241,228,199));
+    setPrimitive(0.8,0,1,0);
+  }
+}
+
+class TungstenEnemy extends Enemy{
+  
+  @Override
+  protected void init(){
+    setHP(90);
+    setExpMag(2);
+    maxSpeed=0.7;
+    rotateSpeed=3;
+    setSize(25);
+    setMass(21);
+    setColor(new Color(236,213,193));
+    setPrimitive(0.8,0,1,0);
   }
 }
 

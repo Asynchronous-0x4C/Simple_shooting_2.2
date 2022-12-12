@@ -395,6 +395,8 @@ class GrenadeBullet extends SubBullet{
     super(w);
     setNear(num);
     c=new Color(0,150,255);
+    emission=c;
+    setPrimitive(0.8,1,0,2);
     duration=60;
   }
   
@@ -804,6 +806,15 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
         break;
       }
     }
+    shape=(g,c,e)->{
+      LightningBullet l=(LightningBullet)e;
+      g.strokeWeight(l.scale);
+      g.stroke(toColor(c));
+      g.line(l.pos.x,l.pos.y,l.pos.x+l.vel.x,l.pos.y+l.vel.y);
+    };
+    c=new Color(255,255,240);
+    emission=c;
+    setPrimitive(0.8,1,0,2);
     HitEnemy=new HashSet<Entity>();
     nextHitEnemy=new HashSet<Entity>();
   }
@@ -814,9 +825,6 @@ class LightningBullet extends SubBullet implements ExcludeGPGPU{
     if(Debug){
       displayAABB(g);
     }
-    g.strokeWeight(scale);
-    g.stroke(255,255,240);
-    g.line(pos.x,pos.y,pos.x+vel.x,pos.y+vel.y);
   }
   
   @Override

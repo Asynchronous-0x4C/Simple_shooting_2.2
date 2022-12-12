@@ -33,6 +33,7 @@
     "Simple_shooting_2_2$AntiBulletField",
     "Simple_shooting_2_2$Teleport",
     "Simple_shooting_2_2$AntiExplosion",
+    "Simple_shooting_2_2$GoldEnemy",
     "Simple_shooting_2_2$EnemyShield$EnemyShield_Child",
     "Simple_shooting_2_2$Plus",
     "Simple_shooting_2_2$ExplosionEnemy_Micro",
@@ -55,6 +56,7 @@
     "Simple_shooting_2_2$SnipeEnemy",
     "Simple_shooting_2_2$Amplification",
     "Simple_shooting_2_2$Poison",
+    "Simple_shooting_2_2$Formation$Formation_Copy",
     "Simple_shooting_2_2$White_S",
     "Simple_shooting_2_2$ExplosionEnemy",
     "Simple_shooting_2_2$Micro_Y",
@@ -74,7 +76,8 @@
     "Stage2",
     "Stage3",
     "Stage4",
-    "Stage5"
+    "Stage5",
+    "Stage6"
   ],
   "BGM": 10,
   "Fullscreen": false,

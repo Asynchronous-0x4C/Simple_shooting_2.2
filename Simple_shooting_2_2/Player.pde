@@ -89,10 +89,10 @@ class Myself extends Entity{
   void update(){
     super.update();
     if(isDead){
-      if(main_rendering.geometry.Objects.contains(this))main_rendering.geometry.Objects.remove(this);
+      if(main_rendering.getGeometry().Objects.contains(this))main_rendering.getGeometry().Objects.remove(this);
       return;
     }
-    main_rendering.geometry.Objects.add(this);
+    main_rendering.getGeometry().Objects.add(this);
     while(exp>=nextLevel){
       exp-=nextLevel;
       ++Level;
